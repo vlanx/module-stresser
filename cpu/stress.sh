@@ -23,7 +23,7 @@ fi
 
 if [[ -n "${CPUSET}" ]]; then
   echo "[module_stresser - cpu] cpu pinning: ${CPUSET}"
-  cmd+=(--taskset ${CPUSET})
+  cmd+=(--taskset "${CPUSET}")
 fi
 
 if [[ -n "${EXTRA_ARGS}" ]]; then
