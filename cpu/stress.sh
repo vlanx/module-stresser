@@ -5,7 +5,7 @@ set -euo pipefail
 : "${WORKERS:=$(nproc)}"     # how many CPU workers to spawn
 : "${LOAD:=100}"             # per-worker load percentage (0..100)
 : "${TIMEOUT:=5m}"           # run duration, e.g. 30s, 5m, 1h
-: "${METHOD:=cdouble}"           # cpu method (e.g., all, matrixprod, fft, crc16, ackermann)
+: "${METHOD:=float64}"           # cpu method (e.g., all, matrixprod, fft, crc16, ackermann)
 : "${CPUSET:=}"              # optional CPU list/mask for taskset, e.g., "0-3" or "0,2,4"
 : "${METRICS_BRIEF:=1}"      # 1 => add --metrics-brief
 : "${PERF:=0}"               # 1 => add --perf (needs kernel perf + permissions)
