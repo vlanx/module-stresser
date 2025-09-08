@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cpu-stress-3c-75pct-1m
+  #namespace: cpu-stress
+spec:
+  ttlSecondsAfterFinished: 15 # time after which the job will be deleted
+  template:
+    spec:
+      restartPolicy: Never
+      # target the worker node
+      nodeSelector:
+        role: stress
+      containers:
+        - name: cpu-stress
+          image: "ghcr.io/vlanx/cpu-stress:v0.1.0"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: WORKERS
+              value: "3"
+            - name: LOAD
+              value: "75"
+            - name: TIMEOUT
+              value: "1m"
+            # - name: METHOD
+            #   value: "ackermann"
+            - name: CPUSET
+              value: "1-3"       # optional; requires node CPU topology awareness
+            # - name: METRICS_BRIEF
+            #   value: "0"
+            # - name: PERF
+            #   value: "1"       # may not be available
+            # - name: EXTRA_ARGS
+            #   value: "--verbose"
+          resources:
+            # Make QoS=Guaranteed to get exclusive CPUs when CPUManager=static
+            requests:
+              cpu: "3"
+            limits:
+              cpu: "3"
+          securityContext:
+            runAsUser: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
