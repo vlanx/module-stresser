@@ -10,13 +10,13 @@ RUN addgroup -S cpu \
 
 # Create workdir and hand it to cpu
 WORKDIR /worker
-COPY stress.sh /worker/stress.sh
-RUN chmod +x /worker/stress.sh \
+COPY cpu_stress.sh /worker/cpu_stress.sh
+RUN chmod +x /worker/cpu_stress.sh \
  && chown -R cpu:cpu /worker  
 
 # Use dumb-init so SIGTERM/SIGINT cleanly stop stress-ng
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["/worker/stress.sh"]
+CMD ["/worker/cpu_stress.sh"]
 
 # OCI metadata
 LABEL org.opencontainers.image.title="Module - CPU stress (stress-ng)" \
