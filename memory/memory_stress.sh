@@ -15,33 +15,33 @@ to_bytes_from_gb() {
 }
 
 # ---------- env + defaults ----------
+WORKERS="${WORKERS:-1}"
 READ_MBPS="${READ_MBPS:-0}"   # integer MB/s, 0 disables reads or -1 for no cap
 WRITE_MBPS="${WRITE_MBPS:-0}" # integer MB/s, 0 disables writes or -1 for no cap
-WORKERS="${WORKERS:-1}"
-DURATION="${DURATION:-60s}"
+TIMEOUT="${TIMEOUT:-60s}"
 SIZE_GB="${SIZE_GB:-}" # REQUIRED
 MEMRATE_FLUSH="${MEMRATE_FLUSH:-false}"
 MEMRATE_METHOD="${MEMRATE_METHOD:-all}" # optional flag to specify read/write method
 CPUSET="${CPUSET:-}"                    # optional CPU list, e.g. 0-7 or 0,2,4,6
 
 # ---------- validate ----------
-[[ -n "$SIZE_GB" ]] || die "SIZE_GB is required (total working set across all workers)."
 [[ "$WORKERS" =~ ^[1-9][0-9]*$ ]] || die "WORKERS must be a positive integer."
+[[ -n "$SIZE_GB" ]] || die "SIZE_GB is required (total working set across all workers)."
 [[ "$READ_MBPS" =~ ^(-1|\+?[0-9]+)$ ]] || die "READ_MBPS must be an integer ≥ -1."
 [[ "$WRITE_MBPS" =~ ^(-1|\+?[0-9]+)$ ]] || die "WRITE_MBPS must be an integer ≥ -1."
-[[ -n "$DURATION" ]] || die "DURATION must be non-empty (e.g., 60s, 5m)."
+[[ -n "$TIMEOUT" ]] || die "TIMEOUT must be non-empty (e.g., 60s, 5m)."
 
 BYTES=$(to_bytes_from_gb "$SIZE_GB")
 
 # ---------- log config ----------
-echo "memrate: config {\"READ_MBPS\":$READ_MBPS,\"WRITE_MBPS\":$WRITE_MBPS,\"WORKERS\":$WORKERS,\"SIZE_GB\":$SIZE_GB,\"DURATION\":\"$DURATION\",\"MEMRATE_FLUSH\":\"$MEMRATE_FLUSH\",\"MEMRATE_METHOD\":\"$MEMRATE_METHOD\",\"CPUSET\":\"$CPUSET\"}"
+echo "memrate: config {\"WORKERS\":$WORKERS,\"READ_MBPS\":$READ_MBPS,\"WRITE_MBPS\":$WRITE_MBPS,\"SIZE_GB\":$SIZE_GB,\"TIMEOUT\":\"$TIMEOUT\",\"MEMRATE_FLUSH\":\"$MEMRATE_FLUSH\",\"MEMRATE_METHOD\":\"$MEMRATE_METHOD\",\"CPUSET\":\"$CPUSET\"}"
 
 # ---------- build command ----------
 cmd=(stress-ng
 	--memrate "$WORKERS"
 	--memrate-bytes "$BYTES"
 	--memrate-method "$MEMRATE_METHOD"
-	--timeout "$DURATION"
+	--timeout "$TIMEOUT"
 )
 
 # Apply read/write rate caps unless both are -1
