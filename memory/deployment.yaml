@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: memory-stress-1c-1m
+  #namespace: cpu-stress
+spec:
+  ttlSecondsAfterFinished: 15 # time after which the job will be deleted
+  template:
+    spec:
+      restartPolicy: Never
+      # target the worker node
+      nodeSelector:
+        role: stress
+      containers:
+        - name: memory-stress
+          image: "ghcr.io/vlanx/memory-stress:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: WORKERS
+              value: "1"
+            - name: READ_MBPS
+              value: "-1" # Value -1 disables cap on read speed. Value 0 disables reads
+            - name: WRITE_MBPS
+              value: "-1" # Value -1 disables cap on write speed. Value 0 disables writes
+            - name: TIMEOUT
+              value: "30s"
+            - name: SIZE_GB
+              value: "4"
+            # - name: MEMRATE_FLUSH
+            #   value: true
+            # - name: MEMRATE_METHOD
+            #   value: "read128pf"
+            - name: CPUSET
+              value: "3"       # optional; requires node CPU topology awareness
+          resources:
+            # Make QoS=Guaranteed to get exclusive CPUs when CPUManager=static
+            requests:
+              cpu: "1"
+            limits:
+              cpu: "1"
+          securityContext:
+            runAsUser: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
