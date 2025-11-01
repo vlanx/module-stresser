@@ -25,16 +25,26 @@ RUN apk add --no-cache \
 # bring in the freshly built stress-ng
 COPY --from=build /src/stress-ng /usr/local/bin/stress-ng
 
-# Non-root user
-# Create non-root user (uid 10001)
-RUN addgroup -S memory \
- && adduser -S -u 10001 -G memory -h /home/memory -s /sbin/nologin memory
+# ---- consistent IDs across all stress containers ----
+ARG USERNAME=memory
+ARG GROUPNAME=stresscontainers
+ARG UID=10001
+ARG GID=20001   # <-- set this to the your host's stresscontainers GID
+
+# Create group + user with fixed numeric IDs
+RUN addgroup -S -g ${GID} ${GROUPNAME} \
+ && adduser  -S -u ${UID} -G ${GROUPNAME} -h /home/${USERNAME} -s /sbin/nologin ${USERNAME} \
+ && mkdir -p /home/${USERNAME}
 
 # Create workdir and hand it to memory user
 WORKDIR /worker
-COPY memory_stress.sh /worker/memory_stress.sh
-RUN chmod +x /worker/memory_stress.sh \
- && chown -R memory:memory /worker
+
+# Copy code (own at copy-time for fewer layers)
+COPY --chown=${UID}:${GID} memory_stress.sh /worker/memory_stress.sh
+RUN chmod +x /worker/memory_stress.sh
+
+# Use this user
+USER memory
 
 # Use dumb-init so SIGTERM/SIGINT cleanly stop stress-ng
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]

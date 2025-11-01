@@ -4,15 +4,26 @@ FROM alpine:3.20
 # We need bash, coreutils (nproc), dumb-init & stress-ng
 RUN apk add --no-cache bash coreutils dumb-init stress-ng 
 
-# Create non-root user (uid 10001)
-RUN addgroup -S cpu \
- && adduser -S -u 10001 -G cpu -h /home/cpu -s /sbin/nologin cpu
+# ---- consistent IDs across all stress containers ----
+ARG USERNAME=cpu
+ARG GROUPNAME=stresscontainers
+ARG UID=10001
+ARG GID=20001   # <-- set this to the your host's stresscontainers GID
+
+# Create group + user with fixed numeric IDs
+RUN addgroup -S -g ${GID} ${GROUPNAME} \
+ && adduser  -S -u ${UID} -G ${GROUPNAME} -h /home/${USERNAME} -s /sbin/nologin ${USERNAME} \
+ && mkdir -p /home/${USERNAME}
 
 # Create workdir and hand it to cpu
 WORKDIR /worker
-COPY cpu_stress.sh /worker/cpu_stress.sh
-RUN chmod +x /worker/cpu_stress.sh \
- && chown -R cpu:cpu /worker  
+
+# Copy code (own at copy-time for fewer layers)
+COPY --chown=${UID}:${GID} cpu_stress.sh /worker/cpu_stress.sh
+RUN chmod +x /worker/cpu_stress.sh
+
+# Use this user
+USER cpu
 
 # Use dumb-init so SIGTERM/SIGINT cleanly stop stress-ng
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
