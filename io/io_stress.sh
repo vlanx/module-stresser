@@ -13,11 +13,8 @@ MODE="${MODE:-}"
 FILE_SIZE_GB="${FILE_SIZE_GB:-8}"
 RUNTIME_SEC="${RUNTIME_SEC:-600}"
 NUMJOBS="${NUMJOBS:-1}"
-TEST_DIR="${TEST_DIR:-test_dir/}"
+TEST_DIR="${TEST_DIR:-/scratch}"
 FILENAME="${FILENAME:-fio_rand.dat}"
-# Select a pattern to write. This helps debugging we actually wrote to the file.
-# You can check which `xxd -l 64 -s 0 "$FILE"`
-PATTERN="${PATTERN:-0x99}"
 
 # Mode-dependent defaults (no validation, just fill if unset)
 case "$MODE" in
@@ -42,7 +39,9 @@ envsubst <"$tmpl" >"$JOB_TMP"
 # Optional CLI overrides (kept out of templates on purpose)
 args=()
 [ -n "${ENGINE:-}" ] && args+=("--ioengine=${ENGINE}")
-[ -n "${RNG_SEED:-}" ] && args+=("--randseed=${RNG_SEED}")
+# Select a pattern to write. This helps debugging we actually wrote to the file.
+# You can check which `xxd -l 64 -s 0 "$FILE"`
+[ -n "${PATTERN:-}" ] && args+=("--buffer_pattern=${PATTERN}")
 
 case "$MODE" in
 seq-*) [ -n "${TARGET_MBPS:-}" ] && args+=("--rate=${TARGET_MBPS}m") ;;
