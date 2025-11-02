@@ -1,5 +1,5 @@
 # CPU stress container — Alpine build
-FROM alpine:3.20
+FROM alpine:3.22
 
 # We need bash, coreutils (nproc), dumb-init & fio
 RUN apk add --no-cache bash coreutils dumb-init fio envsubst
