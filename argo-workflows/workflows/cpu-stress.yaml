@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: cpu-1w
+  namespace: stress
+spec:
+  serviceAccountName: stress-sa # For proper permissions
+  ttlStrategy:
+    secondsAfterCompletion: 15 # Delete the job file after 15s
+    secondsAfterSuccess: 15     
+    secondsAfterFailure: 60   # 1h
+  entrypoint: suite
+  
+  # Reusable cooldown gate lives here, not in the module
+  templates:
+  - name: cooldown
+    suspend:
+      duration: 15s
+
+  - name: suite
+    steps:
+    - - name: cpu-1w-25pct-30s
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "1" }
+          - { name: load,    value: "25" }
+          - { name: timeout, value: "30s" }
+          - { name: cpuset,  value: "0" }
+          - { name: display, value: "CPU-1w-25pct-30s" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-1
+        template: cooldown
+
+    - - name: cpu-2w-50pct-30s
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "2" }
+          - { name: load,    value: "50" }
+          - { name: timeout, value: "1m" }
+          - { name: cpuset,  value: "0-1" }
+          - { name: display, value: "CPU-2w-25pct-30s" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "2" }
+          - { name: cpu_lim, value: "2" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
