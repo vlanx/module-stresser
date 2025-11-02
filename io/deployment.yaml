@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: io-stress-seq-read-8g
+spec:
+  ttlSecondsAfterFinished: 15
+  template:
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        role: stress
+      securityContext:                 # pod-level
+        runAsUser: 10001
+        runAsGroup: 20001
+        fsGroup: 20001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: io-stress
+          image: ghcr.io/vlanx/io-stress:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MODE
+              value: "rand-write"
+            - name: RUNTIME_SEC
+              value: "300"
+            - name: NUMJOBS
+              value: "1"
+            - name: FILE_SIZE_GB
+              value: "8"                  # read window within the 12 GiB file
+            - name: TEST_DIR
+              value: "/scratch"
+            - name: FILENAME
+              value: "fio_rand.dat"   # precreated corpus on the host
+            - name: BLOCK_SIZE
+              value: "1M"
+            - name: IODEPTH
+              value: "1"
+            # # optional pacing; Best for sequential jobs
+            # - name: TARGET_MBPS
+            #   value: "100"
+            # optional pacing; Best for random jobs
+            - name: TARGET_IOPS
+              value: "300"
+            # Engine used
+            # - name: ENGINE
+            #   value: psync
+            # optional pattern for write jobs; Used for debugging
+            - name: PATTERN
+              value: '0x67'
+          volumeMounts:
+            - name: corpus
+              mountPath: /scratch
+          securityContext:                # container-level hardening
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: corpus
+          hostPath:
+            path: /var/lib/module-stresser    # <— Change to your host path
+            type: Directory
+
