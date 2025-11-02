@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: network-stress-100m-20s
+spec:
+  ttlSecondsAfterFinished: 15         # auto-cleanup after 15s
+  backoffLimit: 0                      # don't retry on nonzero exit
+  template:
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 5
+      nodeSelector:
+        role: stress
+      containers:
+        - name: network-stress
+          image: "ghcr.io/vlanx/network-stress:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+            # ---- required ----
+            - name: SERVER
+              value: "10.255.35.92"
+            # ---- common knobs (mirror your script defaults) ----
+            - name: PORT
+              value: "5201"
+            - name: BANDWIDTH
+              value: "100"              # In Megabits per second
+            - name: PROTO
+              value: "tcp"             # tcp | udp
+            - name: DIRECTION
+              value: "download"          # upload | download
+            - name: TIME
+              value: "20"              # in seconds
+            - name: PARALLEL
+              value: "1"
+            - name: INTERVAL           # Status output interval
+              value: "0"
+            # - name: BIND
+            #   value: ""
+            # - name: WINDOW
+            #   value: ""
+            # - name: LENGTH
+            #   value: ""
+            - name: ZEROCOPY
+              value: "1"
+            # - name: TCP_NODELAY
+            #   value: "0"
+            # - name: BIDIR
+            #   value: "0"
+            # - name: EXTRA_ARGS
+            #   value: "--omit 5"
+          securityContext:
+            runAsUser: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
