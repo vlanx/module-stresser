@@ -15,4 +15,3 @@ size=${FILE_SIZE_GB}G
 rw=write
 bs=${BLOCK_SIZE}
 overwrite=1
-buffer_pattern=${PATTERN}
