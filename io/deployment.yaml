@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: io-stress-seq-read-8g
+  namespace: stress
 spec:
   ttlSecondsAfterFinished: 15
   template:

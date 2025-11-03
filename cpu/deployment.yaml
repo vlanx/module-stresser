@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: cpu-stress-2w-75pct-1m
-  #namespace: cpu-stress
+  namespace: stress
 spec:
   ttlSecondsAfterFinished: 15 # time after which the job will be deleted
   template:

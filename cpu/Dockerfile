@@ -20,7 +20,7 @@ WORKDIR /worker
 
 # Copy code (own at copy-time for fewer layers)
 COPY --chown=${UID}:${GID} cpu_stress.sh /worker/cpu_stress.sh
-RUN chmod +x /worker/cpu_stress.sh
+RUN chmod +x /worker/cpu_stress.sh && chown -R ${USERNAME}:${GROUPNAME} /worker
 
 # Use this user
 USER cpu

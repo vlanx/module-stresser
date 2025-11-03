@@ -20,7 +20,7 @@ WORKDIR /worker
 
 # Copy code (own at copy-time for fewer layers)
 COPY --chown=${UID}:${GID} network_stress.sh /worker/network_stress.sh
-RUN chmod +x /worker/network_stress.sh
+RUN chmod +x /worker/network_stress.sh && chown -R ${USERNAME}:${GROUPNAME} /worker
 
 # Use this user
 USER network

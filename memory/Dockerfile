@@ -41,7 +41,7 @@ WORKDIR /worker
 
 # Copy code (own at copy-time for fewer layers)
 COPY --chown=${UID}:${GID} memory_stress.sh /worker/memory_stress.sh
-RUN chmod +x /worker/memory_stress.sh
+RUN chmod +x /worker/memory_stress.sh && chown -R ${USERNAME}:${GROUPNAME} /worker
 
 # Use this user
 USER memory

@@ -21,7 +21,7 @@ WORKDIR /worker
 # Copy code (own at copy-time for fewer layers)
 COPY --chown=${UID}:${GID} io_stress.sh /worker/io_stress.sh
 COPY --chown=${UID}:${GID} templates/ /worker/templates/
-RUN chmod +x /worker/io_stress.sh
+RUN chmod +x /worker/io_stress.sh && chown -R ${USERNAME}:${GROUPNAME} /worker
 
 # Run as this user
 USER io

@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: network-stress-100m-20s
+  namespace: stress
 spec:
   ttlSecondsAfterFinished: 15         # auto-cleanup after 15s
   backoffLimit: 0                      # don't retry on nonzero exit
