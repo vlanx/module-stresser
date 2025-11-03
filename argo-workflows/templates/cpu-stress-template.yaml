@@ -25,7 +25,7 @@ spec:
         workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
     nodeSelector:
       role: stress
-        # <<— podSpecPatch lives on the TEMPLATE, not the step
+    # <<— podSpecPatch lives on the TEMPLATE
     podSpecPatch: |
       containers:
       - name: main

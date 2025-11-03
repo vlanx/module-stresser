@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: cpu-1w
+  name: cpu-1worker
   namespace: stress
 spec:
   serviceAccountName: stress-sa # For proper permissions
   ttlStrategy:
     secondsAfterCompletion: 15 # Delete the job file after 15s
     secondsAfterSuccess: 15     
-    secondsAfterFailure: 60   # 1h
+    secondsAfterFailure: 3600   # 1h
   entrypoint: suite
   
   # Reusable cooldown gate lives here, not in the module
