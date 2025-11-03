@@ -25,7 +25,7 @@ spec:
             - name: MODE
               value: "rand-write"
             - name: RUNTIME_SEC
-              value: "300"
+              value: "30"
             - name: NUMJOBS
               value: "1"
             - name: FILE_SIZE_GB
@@ -35,7 +35,7 @@ spec:
             - name: FILENAME
               value: "fio_rand.dat"   # precreated corpus on the host
             - name: BLOCK_SIZE
-              value: "1M"
+              value: "4k"
             - name: IODEPTH
               value: "1"
             # # optional pacing; Best for sequential jobs
