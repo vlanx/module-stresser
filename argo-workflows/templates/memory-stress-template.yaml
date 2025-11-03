@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: memory-stress
+  namespace: stress
+spec:
+  # -- base pod template for the CPU containeres
+  templates:
+  - name: memory-stress-container
+    inputs:
+      parameters:
+        - name: image
+        - { name: workers, value: 1}
+        - name: read_mbps
+        - name: write_mbps
+        - name: timeout
+        - name: size
+        - { name: memrate_flush, value: true}
+        - { name: memrate_method, value: "all"}
+        - { name: cpuset, value: 1}
+        - name: display
+        # resources as parameters (safe here because this is a STRING patch)
+        - { name: cpu_req, value: "1" }
+        - { name: cpu_lim, value: "1" }
+        - { name: mem_req, value: "1Gi" }
+        - { name: mem_lim, value: "1Gi" }
+    metadata:
+      annotations:
+        workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
+    nodeSelector:
+      role: stress
+    # <<— podSpecPatch lives on the TEMPLATE
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{inputs.parameters.cpu_req}}"
+            memory: "{{inputs.parameters.mem_req}}"
+          limits:
+            cpu: "{{inputs.parameters.cpu_lim}}"
+            memory: "{{inputs.parameters.mem_lim}}"
+    container:
+      image: "{{inputs.parameters.image}}"
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: WORKERS
+          value: "{{inputs.parameters.workers}}"
+        - name: READ_MBPS
+          value: "{{inputs.parameters.read_mbps}}"
+        - name: WRITE_MBPS
+          value: "{{inputs.parameters.write_mbps}}"
+        - name: TIMEOUT
+          value: "{{inputs.parameters.timeout}}"
+        - name: SIZE_GB
+          value: "{{inputs.parameters.size}}"
+        - name: MEMRATE_FLUSH
+          value: "{{inputs.parameters.memrate_flush}}"
+        - name: MEMRATE_METHOD
+          value: "{{inputs.parameters.memrate_method}}"
+        - name: CPUSET
+          value: "{{inputs.parameters.cpuset}}"
+      securityContext:
+        runAsUser: 10001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false

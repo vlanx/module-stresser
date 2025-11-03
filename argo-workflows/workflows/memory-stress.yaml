@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: memory-1worker
+  namespace: stress
+spec:
+  serviceAccountName: stress-sa # For proper permissions
+  ttlStrategy:
+    secondsAfterCompletion: 15 # Delete the job file after 15s
+    secondsAfterSuccess: 15     
+    secondsAfterFailure: 3600   # 1h
+  entrypoint: suite
+  
+  # Reusable cooldown gate lives here, not in the module
+  templates:
+  - name: cooldown
+    suspend:
+      duration: 15s
+
+  - name: suite
+    steps:
+    - - name: memory-1w-1000read-8G-30s
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "1" }
+          - { name: read_mbps,    value: "1000" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "0" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "30s" }
+          - { name: size,  value: "8" } # Size in Gb for the memory test
+          # - { name: memrate_flush,  value: true } 
+          # - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: 1 }
+          - { name: display, value: "memory-1w-1000read-8G-30s" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "9Gi" }
+          - { name: mem_lim, value: "9Gi" }
+
+    - - name: cooldown-1
+        template: cooldown
+
+    - - name: memory-1w-1000write-8G-30s
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "1" }
+          - { name: read_mbps,    value: 0 } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "1000" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "30s" }
+          - { name: size,  value: "8" } # Size in Gb for the memory test
+          # - { name: memrate_flush,  value: true } 
+          # - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: 1 }
+          - { name: display, value: "memory-1w-1000read-8G-30s" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "9Gi" }
+          - { name: mem_lim, value: "9Gi" }

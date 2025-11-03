@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: io-rand-seq
+  namespace: stress
+spec:
+  serviceAccountName: stress-sa
+  ttlStrategy:
+    secondsAfterCompletion: 15
+    secondsAfterSuccess: 15
+    secondsAfterFailure: 3600
+  entrypoint: suite
+
+  templates:
+  - name: cooldown
+    suspend:
+      duration: 15s
+
+  - name: suite
+    steps:
+    - - name: rand-read-8g-30s-300iops
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "rand-read" }
+          - { name: runtime_sec,   value: "30" }
+          - { name: numjobs,       value: "1" }
+          - { name: file_size_gb,  value: "8" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "4k" }
+          - { name: iodepth,       value: "1" }
+          # - { name: target_mbps,   value: "300" } # Best when its sequential
+          - { name: target_iops,   value: "300" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-rand-read-8g-30s-300iops" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }
+
+    - - name: cooldown-1
+        template: cooldown
+
+    - - name: seq-read-8g-30s-300mbps
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "seq-write" }
+          - { name: runtime_sec,   value: "30" }
+          - { name: numjobs,       value: "1" }
+          - { name: file_size_gb,  value: "8" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "1M" }
+          - { name: iodepth,       value: "1" }
+          - { name: target_mbps,   value: "300" } # Best when its sequential
+          # - { name: target_iops,   value: "300" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-seq-write-8g-30s-300mbps" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }

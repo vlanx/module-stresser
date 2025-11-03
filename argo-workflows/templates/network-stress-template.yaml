@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: network-stress
+  namespace: stress
+spec:
+  templates:
+  - name: network-stress-container
+    inputs:
+      parameters:
+        - name: image
+        - name: server
+        # common knobs (defaults match your Job/script)
+        - { name: port,      value: "5201" }
+        - { name: bandwidth, value: "100" }        # Megabits per second
+        - { name: proto,     value: "tcp" }        # tcp | udp
+        - { name: direction, value: "upload" }   # upload | download
+        - { name: time,      value: "30" }         # seconds
+        - { name: parallel,  value: "1" }
+        - { name: interval,  value: "0" }
+        # - { name: bind,      value: "" }
+        # - { name: window,    value: "" }
+        # - { name: length,    value: "" }
+        - { name: zerocopy,  value: "1" }
+        # - { name: tcp_nodelay, value: "0" }
+        # - { name: bidir,     value: "0" }
+        - { name: extra_args, value: "" }
+        - name: display
+
+        # resources as parameters (kept in podSpecPatch like memory/IO)
+        - { name: cpu_req, value: "1" }
+        - { name: cpu_lim, value: "1" }
+        - { name: mem_req, value: "256Mi" }
+        - { name: mem_lim, value: "256Mi" }
+
+    metadata:
+      annotations:
+        workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
+
+    nodeSelector:
+      role: stress
+
+    # Keep resources in podSpecPatch (consistent with memory/IO)
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{inputs.parameters.cpu_req}}"
+            memory: "{{inputs.parameters.mem_req}}"
+          limits:
+            cpu: "{{inputs.parameters.cpu_lim}}"
+            memory: "{{inputs.parameters.mem_lim}}"
+
+    container:
+      name: main
+      image: "{{inputs.parameters.image}}"
+      imagePullPolicy: IfNotPresent
+      env:
+        - { name: SERVER,     value: "{{inputs.parameters.server}}" }
+        - { name: PORT,       value: "{{inputs.parameters.port}}" }
+        - { name: BANDWIDTH,  value: "{{inputs.parameters.bandwidth}}" }
+        - { name: PROTO,      value: "{{inputs.parameters.proto}}" }
+        - { name: DIRECTION,  value: "{{inputs.parameters.direction}}" }
+        - { name: TIME,       value: "{{inputs.parameters.time}}" }
+        - { name: PARALLEL,   value: "{{inputs.parameters.parallel}}" }
+        - { name: INTERVAL,   value: "{{inputs.parameters.interval}}" }
+        # - { name: BIND,       value: "{{inputs.parameters.bind}}" }
+        # - { name: WINDOW,     value: "{{inputs.parameters.window}}" }
+        # - { name: LENGTH,     value: "{{inputs.parameters.length}}" }
+        - { name: ZEROCOPY,   value: "{{inputs.parameters.zerocopy}}" }
+        # - { name: TCP_NODELAY, value: "{{inputs.parameters.tcp_nodelay}}" }
+        # - { name: BIDIR,      value: "{{inputs.parameters.bidir}}" }
+        - { name: EXTRA_ARGS, value: "{{inputs.parameters.extra_args}}" }
+      securityContext:
+        runAsUser: 10001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false

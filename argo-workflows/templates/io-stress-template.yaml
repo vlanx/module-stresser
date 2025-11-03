@@ -1,0 +1,90 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: io-stress
+  namespace: stress
+spec:
+  # -- base pod template for the CPU containeres
+  templates:
+  - name: io-stress-container
+    inputs:
+      parameters:
+        - name: image
+        - { name: mode,           value: "rand-write" }   # rand-read | rand-write | seq-read | seq-write
+        - { name: runtime_sec,    value: "300" }
+        - { name: numjobs,        value: "1" }
+        - { name: file_size_gb,   value: "8" }
+        - { name: test_dir,       value: "/scratch" }
+        - { name: filename,       value: "fio_rand.dat" }
+        - { name: block_size,     value: "4k" }
+        - { name: iodepth,        value: "1" }
+        - { name: target_mbps,    value: "" }            # Optional: Its best when coupled with seq-* tests
+        - { name: target_iops,    value: "300" }         # Optional: Its best when coupled with rand-* tests
+        # - { name: engine,         value: "" }            # Optional (e.g., psync)
+        # - { name: pattern,        value: "" }            # Optional (e.g., 0x67) — useful for debugging
+        - name: display
+        # resources as parameters (safe here because this is a STRING patch)
+        - { name: cpu_req, value: "1" }
+        - { name: cpu_lim, value: "1" }
+        - { name: mem_req, value: "1Gi" }
+        - { name: mem_lim, value: "1Gi" }
+        # Host path for the junk file
+        - { name: host_path, value: "/var/lib/module-stresser" }
+    metadata:
+      annotations:
+        workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
+    nodeSelector:
+      role: stress
+    # <<— podSpecPatch lives on the TEMPLATE
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{inputs.parameters.cpu_req}}"
+            memory: "{{inputs.parameters.mem_req}}"
+          limits:
+            cpu: "{{inputs.parameters.cpu_lim}}"
+            memory: "{{inputs.parameters.mem_lim}}"
+
+    volumes:
+      - name: corpus
+        hostPath:
+          path: "{{inputs.parameters.host_path}}"
+          type: Directory
+
+    container:
+      image: "{{inputs.parameters.image}}"
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: MODE
+          value: "{{inputs.parameters.mode}}"
+        - name: RUNTIME_SEC
+          value: "{{inputs.parameters.runtime_sec}}"
+        - name: NUMJOBS
+          value: "{{inputs.parameters.numjobs}}"
+        - name: FILE_SIZE_GB
+          value: "{{inputs.parameters.file_size_gb}}"
+        - name: TEST_DIR
+          value: "{{inputs.parameters.test_dir}}"
+        - name: FILENAME
+          value: "{{inputs.parameters.filename}}"
+        - name: BLOCK_SIZE
+          value: "{{inputs.parameters.block_size}}"
+        - name: IODEPTH
+          value: "{{inputs.parameters.iodepth}}"
+        - name: TARGET_MBPS
+          value: "{{inputs.parameters.target_mbps}}"
+        - name: TARGET_IOPS
+          value: "{{inputs.parameters.target_iops}}"
+        # - name: ENGINE
+        #   value: "{{inputs.parameters.engine}}"
+        # - name: PATTERN
+        #   value: "{{inputs.parameters.pattern}}"
+      volumeMounts:
+        - name: corpus
+          mountPath: "{{inputs.parameters.test_dir}}"
+      securityContext:
+        runAsUser: 10001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
