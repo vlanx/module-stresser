@@ -11,7 +11,7 @@ die() {
 
 to_bytes_from_gb() {
 	# prints integer bytes for a (possibly fractional) GB value
-	echo "$(($1 * 1024 * 1024 * 1024))"
+	echo "scale=0; ($1 * 1024 * 1024 * 1024)/1" | bc
 }
 
 # ---------- env + defaults ----------
