@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: cpu-1worker
+  name: cpu-24worker
   namespace: stress
 spec:
   serviceAccountName: stress-sa # For proper permissions
@@ -15,45 +15,108 @@ spec:
   templates:
   - name: cooldown
     suspend:
-      duration: 15s
+      duration: 5m
 
   - name: suite
     steps:
-    - - name: cpu-1w-25pct-30s
+    - - name: cpu-24w-20pct-10m
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "1" }
-          - { name: load,    value: "25" }
-          - { name: timeout, value: "30s" }
-          - { name: cpuset,  value: "0" }
-          - { name: display, value: "CPU-1w-25pct-30s" }
+          - { name: workers, value: "24" }
+          - { name: load,    value: "20" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-23" }
+          - { name: display, value: "CPU-24w-20pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "1" }
+          - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
     - - name: cooldown-1
         template: cooldown
 
-    - - name: cpu-2w-50pct-30s
+    - - name: cpu-24w-40pct-10m
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "2" }
-          - { name: load,    value: "50" }
-          - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-1" }
-          - { name: display, value: "CPU-2w-25pct-30s" }
+          - { name: workers, value: "24" }
+          - { name: load,    value: "40" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-23" }
+          - { name: display, value: "CPU-24w-40pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "2" }
-          - { name: cpu_lim, value: "2" }
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "24" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-2
+        template: cooldown
+
+    - - name: cpu-24w-60pct-10m
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "24" }
+          - { name: load,    value: "60" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-23" }
+          - { name: display, value: "CPU-24w-60pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "24" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-3
+        template: cooldown
+
+    - - name: cpu-24w-80pct-10m
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "24" }
+          - { name: load,    value: "80" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-23" }
+          - { name: display, value: "CPU-1w-80pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "24" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-4
+        template: cooldown
+
+    - - name: cpu-24w-100pct-10m
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "24" }
+          - { name: load,    value: "100" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-23" }
+          - { name: display, value: "CPU-24w-100pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }

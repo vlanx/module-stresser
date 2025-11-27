@@ -14,23 +14,23 @@ spec:
   templates:
   - name: cooldown
     suspend:
-      duration: 15s
+      duration: 5m
 
   - name: suite
     steps:
-    - - name: tcp-upload-100mbit-30s
+    - - name: tcp-upload-2000mbit-600s
         templateRef:
           name: network-stress
           template: network-stress-container
         arguments:
           parameters:
             - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
-            - { name: display,   value: "net-tcp-dl-100mbit-30s" }
+            - { name: display,   value: "net-tcp-ul-2000mbit-600s" }
             - { name: server,    value: "xbox.av.it.pt" }   # <— your server
             - { name: proto,     value: "tcp" }
             - { name: direction, value: "upload" }
-            - { name: bandwidth, value: "100" }            # Mbit/s
-            - { name: time,      value: "30" }
+            - { name: bandwidth, value: "2000" }            # Mbit/s
+            - { name: time,      value: "600" }
             - { name: parallel,  value: "1" }
             - { name: zerocopy,  value: "1" }
             # resources
@@ -42,19 +42,91 @@ spec:
     - - name: cooldown-1
         template: cooldown
 
-    - - name: tcp-download-100mbit-30s
+    - - name: tcp-upload-4000mbit-600s
         templateRef:
           name: network-stress
           template: network-stress-container
         arguments:
           parameters:
             - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
-            - { name: display,   value: "net-tcp-dl-100mbit-30s" }
-            - { name: server,    value: "xbox.av.it.pt" }
+            - { name: display,   value: "net-tcp-ul-4000mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
             - { name: proto,     value: "tcp" }
-            - { name: direction, value: "download" }
-            - { name: bandwidth, value: "100" }
-            - { name: time,      value: "30" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "4000" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-2
+        template: cooldown
+
+    - - name: tcp-upload-6000mbit-600s
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-ul-6000mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "6000" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-3
+        template: cooldown
+
+    - - name: tcp-upload-8000mbit-600s
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-dl-8000mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "8000" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-4
+        template: cooldown
+
+    - - name: tcp-upload-10000mbit-600s
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-dl-10000mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "10000" }            # Mbit/s
+            - { name: time,      value: "600" }
             - { name: parallel,  value: "1" }
             - { name: zerocopy,  value: "1" }
             # resources
