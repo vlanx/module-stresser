@@ -41,7 +41,7 @@ spec:
           - { name: cpu_req,          value: "24" }
           - { name: cpu_lim,          value: "24" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
 
     # Optional: add more steps with different parameters,
     # separated by cooldowns, just like your CPU suite.
@@ -68,4 +68,4 @@ spec:
           - { name: cpu_req,          value: "24" }
           - { name: cpu_lim,          value: "24" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
