@@ -1,0 +1,90 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: k6-runner
+  namespace: stress
+spec:
+  templates:
+  - name: k6-test-container
+    inputs:
+      parameters:
+        # Container image
+        - name: image
+          value: grafana/k6:latest
+
+        # Script source (ConfigMap + filename)
+        - name: script_configmap
+          value: k6-sine-script        # matches ConfigMap name
+        - name: script_file
+          value: script.js             # key inside the ConfigMap
+
+        # Test-specific parameters
+        - name: BASE_URL               
+          value: "http://quickpizza-public-api.default.svc.cluster.local:3333"
+        - name: DURATION
+          value: "600"
+        - name: MAX_VUSERS
+          value: "5000"
+
+        # Extra k6 CLI args (verbosity, console output, etc.)
+        - name: k6_args
+          value: "--console-output=stdout --verbose"
+
+        # Display name in Argo UI
+        - name: display
+
+        # Resource knobs (same pattern as CPU)
+        - { name: cpu_req, value: "1" }
+        - { name: cpu_lim, value: "1" }
+        - { name: mem_req, value: "1Gi" }
+        - { name: mem_lim, value: "1Gi" }
+
+    metadata:
+      annotations:
+        workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
+
+    nodeSelector:
+      role: master       # Since this is the driver of traffic, and not the computation we want to measure, we send it to master
+
+    # Patch resources for the main container (same pattern as cpu-stress)
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{inputs.parameters.cpu_req}}"
+            memory: "{{inputs.parameters.mem_req}}"
+          limits:
+            cpu: "{{inputs.parameters.cpu_lim}}"
+            memory: "{{inputs.parameters.mem_lim}}"
+
+    container:
+      image: "{{inputs.parameters.image}}"
+      imagePullPolicy: IfNotPresent
+      command: ["sh", "-c"]
+      args:
+        - >
+          k6 run {{inputs.parameters.k6_args}} /scripts/{{inputs.parameters.script_file}}
+
+      env:
+        # From configmap script.js: BASE_URL, TEST_NUMBER, TEST_DURATION, COOLDOWN, BASE_AMPLITUDE. :contentReference[oaicite:4]{index=4}
+        - name: BASE_URL
+          value: "{{inputs.parameters.BASE_URL}}"
+        - name: DURATION
+          value: "{{inputs.parameters.DURATION}}"
+        - name: MAX_VUSERS
+          value: "{{inputs.parameters.MAX_VUSERS}}"
+
+      volumeMounts:
+        - name: k6-script
+          mountPath: /scripts
+
+      securityContext:
+        runAsUser: 10001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+
+    volumes:
+      - name: k6-script
+        configMap:
+          name: "{{inputs.parameters.script_configmap}}"

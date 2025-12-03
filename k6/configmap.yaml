@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k6-sine-script
+  namespace: stress
+data:
+  script.js: |
+    import http from "k6/http";
+    import { check, sleep } from "k6";
+
+    // ---------------------------------------
+    // TEST PARAMETERS (env-driven, minimal)
+    // ---------------------------------------
+    // Support both UPPER_CASE and lower_case for convenience
+    const BASE_URL = __ENV.BASE_URL;
+    const MAX_VUSERS = Number(__ENV.MAX_VUSERS || "1000");
+    const DURATION = Number(__ENV.DURATION || "600"); // seconds
+
+    if (!BASE_URL) {
+      throw new Error("BASE_URL env var is required");
+    }
+    if (MAX_VUSERS <= 0) {
+      throw new Error("MAX_VUSERS must be > 0");
+    }
+    if (DURATION <= 0) {
+      throw new Error("DURATION must be > 0");
+    }
+
+    // Split total test duration into ramp-up and ramp-down.
+    // No hold, no extra envs.
+    const rampUp = DURATION / 2;
+    const rampDown = DURATION - rampUp; // handles odd numbers cleanly
+
+    export const options = {
+      stages: [
+        // Ramp from 0 → MAX_VUSERS
+        { duration: `${rampUp}s`, target: MAX_VUSERS },
+        // Ramp from MAX_VUSERS → 0
+        { duration: `${rampDown}s`, target: 0 },
+      ],
+    };
+
+    // ---------------------------------------
+    // PAYLOAD (JSON body)
+    // ---------------------------------------
+    const payload = JSON.stringify({
+      customName: "",
+      excludedIngredients: [],
+      excludedTools: [],
+      maxCaloriesPerSlice: 1000,
+      maxNumberOfToppings: 5,
+      minNumberOfToppings: 2,
+      mustBeVegetarian: false,
+    });
+
+    // ---------------------------------------
+    // HTTP HEADERS
+    // ---------------------------------------
+    const params = {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Token 3Mz1ZUX60dGNNYqH",
+      },
+    };
+
+    // ---------------------------------------
+    // MAIN REQUEST LOOP
+    // ---------------------------------------
+    export default function () {
+      const res = http.post(BASE_URL, payload, params);
+
+      check(res, { "status is 200": (r) => r.status === 200 });
+
+      // ~1 request per active VU per second
+      sleep(1);
+    }

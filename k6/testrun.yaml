@@ -1,0 +1,59 @@
+apiVersion: k6.io/v1alpha1
+kind: TestRun
+metadata:
+  name: quickpizza-sine-test
+  namespace: k6
+spec:
+  parallelism: 1
+
+  arguments: "--console-output=stdout --verbose"
+
+  script:
+    configMap:
+      name: k6-sine-script
+      file: script.js
+
+  # -----------------------
+  # RUNNER (UNIFICADO)
+  # -----------------------
+  runner:
+    image: grafana/k6:latest
+    env:
+      - name: BASE_URL
+        value: "http://quickpizza-public-api.default.svc.cluster.local:3333"
+      - name: TEST_NUMBER
+        value: "5"
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: k6runner
+              operator: In
+              values: ["true"]
+
+  # -----------------------
+  # INITIALIZER (NODE-AFFINITY)
+  # -----------------------
+  initializer:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: k6runner
+              operator: In
+              values: ["true"]
+
+  # -----------------------
+  # STARTER (NODE-AFFINITY)
+  # -----------------------
+  starter:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: k6runner
+              operator: In
+              values: ["true"]

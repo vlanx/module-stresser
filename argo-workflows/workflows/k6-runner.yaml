@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: k6-quickpizza-sine
+  namespace: stress 
+spec:
+  serviceAccountName: stress-sa
+  ttlStrategy:
+    secondsAfterCompletion: 15
+    secondsAfterSuccess: 15
+    secondsAfterFailure: 3600
+
+  entrypoint: suite
+
+  templates:
+  # Cooldown gate, same pattern as CPU
+  - name: cooldown
+    suspend:
+      duration: 30s
+
+  - name: suite
+    steps:
+    - - name: k6-qp-sine-5cycles
+        templateRef:
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "100" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "5000" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-30s-50-users" }
+
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "24" }
+          - { name: cpu_lim,          value: "24" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "8Gi" }
+
+    # Optional: add more steps with different parameters,
+    # separated by cooldowns, just like your CPU suite.
+    - - name: cooldown-1
+        template: cooldown
+
+    - - name: k6-qp-sine-10cycles
+        templateRef:
+          name: k6-runner
+          template: k6-test-container
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "200" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "30000" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-QuickPizza-Sine-10cycles" }
+
+          - { name: cpu_req,          value: "24" }
+          - { name: cpu_lim,          value: "24" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "8Gi" }

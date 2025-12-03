@@ -23,8 +23,10 @@ spec:
     metadata:
       annotations:
         workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
+
     nodeSelector:
       role: stress
+
     # <<— podSpecPatch lives on the TEMPLATE
     podSpecPatch: |
       containers:
