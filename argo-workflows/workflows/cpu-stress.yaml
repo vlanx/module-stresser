@@ -6,8 +6,8 @@ metadata:
 spec:
   serviceAccountName: stress-sa # For proper permissions
   ttlStrategy:
-    secondsAfterCompletion: 15 # Delete the job file after 15s
-    secondsAfterSuccess: 15     
+    secondsAfterCompletion: 300 # Delete the job file after 300s
+    secondsAfterSuccess: 300     
     secondsAfterFailure: 3600   # 1h
   entrypoint: suite
   

@@ -6,8 +6,8 @@ metadata:
 spec:
   serviceAccountName: stress-sa
   ttlStrategy:
-    secondsAfterCompletion: 15
-    secondsAfterSuccess: 15
+    secondsAfterCompletion: 300
+    secondsAfterSuccess: 300
     secondsAfterFailure: 3600
   entrypoint: suite
 
