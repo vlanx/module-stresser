@@ -38,3 +38,10 @@ argo submit </path/to/template.yaml>
 ```bash
 argo template list -n <namespace>
 ```
+
+### Login
+
+```bash
+kubectl apply -f rbac-login.yaml
+kubectl -n argo create token argo-admin
+```
