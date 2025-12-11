@@ -1,0 +1,309 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  annotations:
+    workflows.argoproj.io/pod-name-format: v2
+  creationTimestamp: "2025-12-11T21:56:07Z"
+  generation: 3
+  labels:
+    workflows.argoproj.io/completed: "false"
+    workflows.argoproj.io/creator: tiago
+    workflows.argoproj.io/phase: Running
+  name: cpu-24worker
+  namespace: stress
+  resourceVersion: "8733847"
+  uid: 12d5afc2-b2a1-4913-b26d-639c211c85c0
+spec:
+  arguments: {}
+  entrypoint: suite
+  serviceAccountName: stress-sa
+  templates:
+  - inputs: {}
+    metadata: {}
+    name: cooldown
+    outputs: {}
+    suspend:
+      duration: 5m
+  - inputs: {}
+    metadata: {}
+    name: suite
+    outputs: {}
+    steps:
+    - - arguments:
+          parameters:
+          - name: image
+            value: ghcr.io/vlanx/cpu-stress:latest
+          - name: workers
+            value: "24"
+          - name: load
+            value: "20"
+          - name: timeout
+            value: 10m
+          - name: cpuset
+            value: 0-23
+          - name: display
+            value: CPU-24w-20pct-10m
+          - name: cpu_req
+            value: "1"
+          - name: cpu_lim
+            value: "24"
+          - name: mem_req
+            value: 1Gi
+          - name: mem_lim
+            value: 1Gi
+        name: cpu-24w-20pct-10m
+        templateRef:
+          name: cpu-stress
+          template: cpu-stress-container
+    - - arguments: {}
+        name: cooldown-1
+        template: cooldown
+    - - arguments:
+          parameters:
+          - name: image
+            value: ghcr.io/vlanx/cpu-stress:latest
+          - name: workers
+            value: "24"
+          - name: load
+            value: "40"
+          - name: timeout
+            value: 10m
+          - name: cpuset
+            value: 0-23
+          - name: display
+            value: CPU-24w-40pct-10m
+          - name: cpu_req
+            value: "1"
+          - name: cpu_lim
+            value: "24"
+          - name: mem_req
+            value: 1Gi
+          - name: mem_lim
+            value: 1Gi
+        name: cpu-24w-40pct-10m
+        templateRef:
+          name: cpu-stress
+          template: cpu-stress-container
+    - - arguments: {}
+        name: cooldown-2
+        template: cooldown
+    - - arguments:
+          parameters:
+          - name: image
+            value: ghcr.io/vlanx/cpu-stress:latest
+          - name: workers
+            value: "24"
+          - name: load
+            value: "60"
+          - name: timeout
+            value: 10m
+          - name: cpuset
+            value: 0-23
+          - name: display
+            value: CPU-24w-60pct-10m
+          - name: cpu_req
+            value: "1"
+          - name: cpu_lim
+            value: "24"
+          - name: mem_req
+            value: 1Gi
+          - name: mem_lim
+            value: 1Gi
+        name: cpu-24w-60pct-10m
+        templateRef:
+          name: cpu-stress
+          template: cpu-stress-container
+    - - arguments: {}
+        name: cooldown-3
+        template: cooldown
+    - - arguments:
+          parameters:
+          - name: image
+            value: ghcr.io/vlanx/cpu-stress:latest
+          - name: workers
+            value: "24"
+          - name: load
+            value: "80"
+          - name: timeout
+            value: 10m
+          - name: cpuset
+            value: 0-23
+          - name: display
+            value: CPU-1w-80pct-10m
+          - name: cpu_req
+            value: "1"
+          - name: cpu_lim
+            value: "24"
+          - name: mem_req
+            value: 1Gi
+          - name: mem_lim
+            value: 1Gi
+        name: cpu-24w-80pct-10m
+        templateRef:
+          name: cpu-stress
+          template: cpu-stress-container
+    - - arguments: {}
+        name: cooldown-4
+        template: cooldown
+    - - arguments:
+          parameters:
+          - name: image
+            value: ghcr.io/vlanx/cpu-stress:latest
+          - name: workers
+            value: "24"
+          - name: load
+            value: "100"
+          - name: timeout
+            value: 10m
+          - name: cpuset
+            value: 0-23
+          - name: display
+            value: CPU-24w-100pct-10m
+          - name: cpu_req
+            value: "1"
+          - name: cpu_lim
+            value: "24"
+          - name: mem_req
+            value: 1Gi
+          - name: mem_lim
+            value: 1Gi
+        name: cpu-24w-100pct-10m
+        templateRef:
+          name: cpu-stress
+          template: cpu-stress-container
+  ttlStrategy:
+    secondsAfterCompletion: 300
+    secondsAfterFailure: 3600
+    secondsAfterSuccess: 300
+status:
+  artifactGCStatus:
+    notSpecified: true
+  artifactRepositoryRef:
+    artifactRepository: {}
+    default: true
+  conditions:
+  - status: "True"
+    type: PodRunning
+  finishedAt: null
+  nodes:
+    cpu-24worker:
+      children:
+      - cpu-24worker-1005983534
+      displayName: cpu-24worker
+      finishedAt: null
+      id: cpu-24worker
+      name: cpu-24worker
+      phase: Running
+      progress: 0/1
+      startedAt: "2025-12-11T21:56:07Z"
+      templateName: suite
+      templateScope: local/cpu-24worker
+      type: Steps
+    cpu-24worker-1005983534:
+      boundaryID: cpu-24worker
+      children:
+      - cpu-24worker-2502274117
+      displayName: '[0]'
+      finishedAt: null
+      id: cpu-24worker-1005983534
+      name: cpu-24worker[0]
+      nodeFlag: {}
+      phase: Running
+      progress: 0/1
+      startedAt: "2025-12-11T21:56:07Z"
+      templateScope: local/cpu-24worker
+      type: StepGroup
+    cpu-24worker-2502274117:
+      boundaryID: cpu-24worker
+      displayName: cpu-24w-20pct-10m
+      finishedAt: null
+      hostNodeName: atnog-test5
+      id: cpu-24worker-2502274117
+      inputs:
+        parameters:
+        - name: image
+          value: ghcr.io/vlanx/cpu-stress:latest
+        - name: workers
+          value: "24"
+        - name: load
+          value: "20"
+        - name: timeout
+          value: 10m
+        - name: cpuset
+          value: 0-23
+        - name: display
+          value: CPU-24w-20pct-10m
+        - name: cpu_req
+          value: "1"
+        - name: cpu_lim
+          value: "24"
+        - name: mem_req
+          value: 1Gi
+        - name: mem_lim
+          value: 1Gi
+      name: cpu-24worker[0].cpu-24w-20pct-10m
+      phase: Running
+      progress: 0/1
+      startedAt: "2025-12-11T21:56:07Z"
+      taskResultSynced: false
+      templateRef:
+        name: cpu-stress
+        template: cpu-stress-container
+      templateScope: local/cpu-24worker
+      type: Pod
+  phase: Running
+  progress: 0/1
+  startedAt: "2025-12-11T21:56:07Z"
+  storedTemplates:
+    namespaced/cpu-stress/cpu-stress-container:
+      container:
+        env:
+        - name: WORKERS
+          value: '{{inputs.parameters.workers}}'
+        - name: LOAD
+          value: '{{inputs.parameters.load}}'
+        - name: TIMEOUT
+          value: '{{inputs.parameters.timeout}}'
+        - name: CPUSET
+          value: '{{inputs.parameters.cpuset}}'
+        image: '{{inputs.parameters.image}}'
+        imagePullPolicy: IfNotPresent
+        name: ""
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 10001
+      inputs:
+        parameters:
+        - name: image
+        - name: workers
+        - name: load
+        - name: timeout
+        - name: cpuset
+        - name: display
+        - name: cpu_req
+          value: "1"
+        - name: cpu_lim
+          value: "1"
+        - name: mem_req
+          value: 1Gi
+        - name: mem_lim
+          value: 1Gi
+      metadata:
+        annotations:
+          workflows.argoproj.io/display-name: '{{inputs.parameters.display}}'
+      name: cpu-stress-container
+      nodeSelector:
+        role: stress
+      outputs: {}
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: "{{inputs.parameters.cpu_req}}"
+              memory: "{{inputs.parameters.mem_req}}"
+            limits:
+              cpu: "{{inputs.parameters.cpu_lim}}"
+              memory: "{{inputs.parameters.mem_lim}}"
