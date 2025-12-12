@@ -17,7 +17,7 @@ spec:
     suspend:
       duration: 5m
 
-  - name: master
+  - name: suite
     steps:
 ### CPU ###
     - - name: cpu-24w-20pct-10m
