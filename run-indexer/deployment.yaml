@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: run-indexer
+  namespace: stress
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: run-indexer
+  namespace: stress
+rules:
+  - apiGroups: ["argoproj.io"]
+    resources: ["workflows"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: run-indexer
+  namespace: stress
+subjects:
+  - kind: ServiceAccount
+    name: run-indexer
+    namespace: stress
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: run-indexer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: run-indexer
+  namespace: stress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: run-indexer
+  template:
+    metadata:
+      labels:
+        app: run-indexer
+    spec:
+      serviceAccountName: run-indexer
+      nodeSelector:
+        role: master
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: run-indexer
+          image: ghcr.io/vlanx/run-indexer:v0.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: WATCH_NAMESPACE
+              value: "stress"
+            - name: LOG_FILE
+              value: "/var/log/run-indexer/run-indexer.log"
+            - name: RESYNC_PERIOD
+              value: "30s"
+          args:
+            - "--namespace=$(WATCH_NAMESPACE)"
+            - "--log-file=$(LOG_FILE)"
+            - "--resync=$(RESYNC_PERIOD)"
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/run-indexer
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: logs
+          hostPath:
+            path: /var/log/run-indexer
+            type: DirectoryOrCreate
