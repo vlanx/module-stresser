@@ -6,12 +6,18 @@ import (
 )
 
 type TestRun struct {
-	displayName string
-	startedAt   time.Time
-	finishedAt  time.Time
+	WorkflowUID  string
+	WorkflowName string
+	Namespace    string
+
+	NodeID      string
+	DisplayName string
+
+	StartedAt  time.Time
+	FinishedAt time.Time
 }
 
 type Indexer interface {
 	WriteTestRuns(ctx context.Context, runs []TestRun) error
-	Close(ctx context.Context) error // or just io.Closer
+	Close(ctx context.Context) error
 }
