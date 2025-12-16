@@ -26,12 +26,14 @@ spec:
               value: "30s"
             - name: SIZE_GB
               value: "4"
-            # - name: MEMRATE_FLUSH
-            #   value: true
+            - name: MEMRATE_FLUSH
+              value: "true"
             # - name: MEMRATE_METHOD
             #   value: "read128pf"
             - name: CPUSET
               value: "3"       # optional; requires node CPU topology awareness
+            - name: EXTRA_ARGS
+              value: "--verbose"
           resources:
             # Make QoS=Guaranteed to get exclusive CPUs when CPUManager=static
             requests:

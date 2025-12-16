@@ -23,6 +23,7 @@ SIZE_GB="${SIZE_GB:-}" # REQUIRED
 MEMRATE_FLUSH="${MEMRATE_FLUSH:-false}"
 MEMRATE_METHOD="${MEMRATE_METHOD:-all}" # optional flag to specify read/write method
 CPUSET="${CPUSET:-}"                    # optional CPU list, e.g. 0-7 or 0,2,4,6
+: "${EXTRA_ARGS:=}"                     # any extra raw args to pass to stress-ng
 
 # ---------- validate ----------
 [[ "$WORKERS" =~ ^[1-9][0-9]*$ ]] || die "WORKERS must be a positive integer."
@@ -70,6 +71,13 @@ fi
 if [[ -n "${CPUSET}" ]]; then
 	echo "[module_stresser - cpu] cpu pinning: ${CPUSET}"
 	cmd+=(--taskset "${CPUSET}")
+fi
+
+if [[ -n "${EXTRA_ARGS}" ]]; then
+	# Allow users to inject additional flags as a single string
+	# shellcheck disable=SC2206
+	extra=(${EXTRA_ARGS})
+	cmd+=("${extra[@]}")
 fi
 
 # ---------- run ----------
