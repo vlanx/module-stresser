@@ -249,3 +249,5 @@ go.work.sum
 # .vscode/
 
 .token
+day*
+.DS_Store

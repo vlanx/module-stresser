@@ -1,0 +1,50 @@
+influx:
+  url: "http://10.255.35.63:8086"
+  org: "it"
+  bucket: "energy"
+  token_env: "INFLUX_TOKEN"
+
+defaults:
+  padding_seconds: 60
+
+sensors:
+  - name: ipmi
+    measurement: "ipmi"
+    fields: ["power_meter", "ps_1_input", "ps_2_input", "ps_1_output", "ps_2_output"]
+    tag_in: {}
+    keep_tags: []
+    pivot:
+      by: "_field"
+
+  - name: pdu_energy_143
+    measurement: "pdu_energy_143"
+    fields: ["activePower"]
+    tag_in: {}
+    keep_tags: []
+
+  - name: pdu_energy_144
+    measurement: "pdu_energy_144"
+    fields: ["activePower"]
+    tag_in: {}
+    keep_tags: []
+
+  - name: scaphandre
+    measurement: "schaphandre"
+    fields: ["scaph_host_power_microwatts"]
+    tag_in: {}
+    keep_tags: []
+
+  - name: kepler
+    measurement: "kepler"
+    fields: ["kepler_node_platform_joules_total"]
+    tag_in: {}
+    keep_tags: []
+
+  - name: alumet
+    measurement: "alumet"
+    fields: ["rapl_consumed_energy_J_alumet"]
+    tag_in:
+      domain: ["dram", "package"]
+    keep_tags: ["domain"]
+    pivot:
+      by: "domain"
