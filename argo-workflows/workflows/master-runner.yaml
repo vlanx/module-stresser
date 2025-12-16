@@ -253,7 +253,7 @@ spec:
         template: cooldown
 
 ### IO ###
-    - - name: seq-write-12g-10m-55mbps
+    - - name: seq-write-12g-55mbps-10m
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -281,7 +281,7 @@ spec:
     - - name: cooldown-1io
         template: cooldown
 
-    - - name: seq-write-12g-10m-110mbps
+    - - name: seq-write-12g-110mbps-10m
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -309,7 +309,7 @@ spec:
     - - name: cooldown-2io
         template: cooldown
 
-    - - name: seq-write-12g-10m-166mbps
+    - - name: seq-write-12g-166mbps-10m
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -337,7 +337,7 @@ spec:
     - - name: cooldown-3io
         template: cooldown
 
-    - - name: seq-write-12g-10m-221mbps
+    - - name: seq-write-12g-221mbps-10m
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -365,7 +365,7 @@ spec:
     - - name: cooldown-4io
         template: cooldown
 
-    - - name: rand-read-12g-10m-276mbps
+    - - name: rand-read-12g-276mbps-10m
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -515,7 +515,7 @@ spec:
         template: cooldown
 
 ### APP ###
-    - - name: k6-qp-sine-5000vu
+    - - name: k6-sine-5000vu
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -541,7 +541,7 @@ spec:
     - - name: cooldown-1app
         template: cooldown
 
-    - - name: k6-qp-sine-10000vu
+    - - name: k6-sine-10000vu
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -567,7 +567,7 @@ spec:
     - - name: cooldown-2app
         template: cooldown
 
-    - - name: k6-qp-sine-15000vu
+    - - name: k6-sine-15000vu
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -593,7 +593,7 @@ spec:
     - - name: cooldown-3app
         template: cooldown
 
-    - - name: k6-qp-sine-20000vu
+    - - name: k6-sine-20000vu
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -619,7 +619,7 @@ spec:
     - - name: cooldown-4app
         template: cooldown
 
-    - - name: k6-qp-sine-25000vu
+    - - name: k6-sine-25000vu
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name

@@ -148,7 +148,7 @@ def main() -> int:
             q_start = r.started - timedelta(seconds=padding)
             q_stop = r.finished + timedelta(seconds=padding)
 
-            run_dir = os.path.join(out_dir, safe_dirname(f"{r.module}_{r.pct}"))
+            run_dir = os.path.join(out_dir, safe_dirname(f"{r.test_name}"))
             os.makedirs(run_dir, exist_ok=True)
 
             meta = {

@@ -29,7 +29,7 @@ sensors:
     keep_tags: []
 
   - name: scaphandre
-    measurement: "schaphandre"
+    measurement: "scaphandre"
     fields: ["scaph_host_power_microwatts"]
     tag_in: {}
     keep_tags: []
