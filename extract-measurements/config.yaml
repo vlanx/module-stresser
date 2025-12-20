@@ -6,6 +6,7 @@ influx:
 
 defaults:
   padding_seconds: 60
+  master_padding_seconds: 1200 # 20 minutes padding
 
 sensors:
   - name: ipmi
@@ -26,6 +27,32 @@ sensors:
     measurement: "pdu_energy_144"
     fields: ["activePower"]
     tag_in: {}
+    keep_tags: []
+
+  - name: shelly_pdu_143
+    measurement: "shelly_pdu_143"
+    fields: ["apower"]
+    tag_in: {}
+    keep_tags: []
+
+  - name: shelly_pdu_144
+    measurement: "shelly_pdu_144"
+    fields: ["apower"]
+    tag_in: {}
+    keep_tags: []
+
+  - name: clamp_shelly_pdu143
+    measurement: "clamp-shelly"
+    fields: ["act_power"]
+    tag_in:
+      topic: ["clamp143/status/pdu143"]
+    keep_tags: []
+
+  - name: clamp_shelly_pdu144
+    measurement: "clamp-shelly"
+    fields: ["act_power"]
+    tag_in:
+      topic: ["clamp143/status/pdu144"]
     keep_tags: []
 
   - name: scaphandre

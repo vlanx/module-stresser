@@ -81,10 +81,14 @@ def build_flux_query(
 
     # field filter
     if fields:
-        set_list = ", ".join([f'"{flux_escape(f)}"' for f in fields])
-        q.append(
-            f"  |> filter(fn: (r) => contains(value: r._field, set: [{set_list}]))"
-        )
+        if len(fields) == 1:
+            f = flux_escape(fields[0])
+            q.append(f'  |> filter(fn: (r) => r._field == "{f}")')
+        else:
+            set_list = ", ".join([f'"{flux_escape(f)}"' for f in fields])
+            q.append(
+                f"  |> filter(fn: (r) => contains(value: r._field, set: [{set_list}]))"
+            )
 
     keep_cols = (
         ["_time", "_measurement", "_field", "_value"] + keep_tags + list(tag_in.keys())
@@ -97,15 +101,54 @@ def build_flux_query(
     # pivot for alumet
     pivot_cfg = sensor.get("pivot")
     if pivot_cfg:
-        by = pivot_cfg["by"]
+        by = flux_escape(str(pivot_cfg["by"]))
         q.append(
-            f'|> pivot(rowKey:["_time"], columnKey: ["{by}"], valueColumn: "_value")'
+            f'  |> pivot(rowKey:["_time"], columnKey: ["{by}"], valueColumn: "_value")'
         )
     return "\n".join(q)
 
 
 def safe_dirname(s: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", s).strip("_")
+
+
+def export_sensor_csv(
+    client: InfluxDBClient,
+    org: str,
+    bucket: str,
+    sensor: Dict[str, Any],
+    start: datetime,
+    stop: datetime,
+    out_path: str,
+) -> bool:
+    """Query Influx once for a sensor and write a single CSV.
+
+    Returns True if a non-empty CSV was written.
+    """
+
+    flux = build_flux_query(bucket, sensor, start, stop)
+    print(f"Query: {flux}")
+    df = client.query_api().query_data_frame(query=flux, org=org)
+
+    if df is None or (isinstance(df, list) and len(df) == 0):
+        return False
+    if isinstance(df, list):
+        df = pd.concat(df, ignore_index=True)
+
+    for col in ["result", "table"]:
+        if col in df.columns:
+            df = df.drop(columns=[col])
+
+    if df.empty:
+        return False
+
+    if "_time" in df.columns:
+        df["_time"] = pd.to_datetime(df["_time"], utc=True)
+        df = df.sort_values("_time")
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    df.to_csv(out_path, index=False)
+    return True
 
 
 def main() -> int:
@@ -122,12 +165,16 @@ def main() -> int:
     influx = cfg["influx"]
     bucket = influx["bucket"]
     org = influx["org"]
-    token = os.getenv("INFLUX_TOKEN")
+    token_env = influx.get("token_env") or "INFLUX_TOKEN"
+    token = os.getenv(token_env)
     if not token:
-        print(f"Missing token env var: $INFLUX_TOKEN={token}")
+        print(f"Missing token env var: ${token_env}")
         return 2
 
-    padding = int((cfg.get("defaults") or {}).get("padding_seconds", 60))
+    defaults = cfg.get("defaults") or {}
+    padding = int(defaults.get("padding_seconds", 60))
+    # Whole-run padding (falls back to per-test padding if not provided)
+    master_padding = int(defaults.get("master_padding_seconds", padding))
 
     runs: List[RunWindow] = []
     with open(log_path, "r", encoding="utf-8") as f:
@@ -140,10 +187,15 @@ def main() -> int:
         print("No runs found in log.")
         return 1
 
+    # Whole-run (master) window: first test start -> last test finish
+    master_start = min(r.started for r in runs) - timedelta(seconds=master_padding)
+    master_stop = max(r.finished for r in runs) + timedelta(seconds=master_padding)
+
     # bump timeout if needed (ms)
     client = InfluxDBClient(url=influx["url"], token=token, org=org, timeout=180_000)
 
     with client:
+        # Per-test exports (existing behavior)
         for r in runs:
             q_start = r.started - timedelta(seconds=padding)
             q_stop = r.finished + timedelta(seconds=padding)
@@ -164,27 +216,21 @@ def main() -> int:
                 json.dump(meta, mf, indent=2)
 
             for sensor in cfg.get("sensors", []):
-                flux = build_flux_query(bucket, sensor, q_start, q_stop)
-                df = client.query_api().query_data_frame(query=flux, org=org)
-
-                if df is None or (isinstance(df, list) and len(df) == 0):
-                    continue
-                if isinstance(df, list):
-                    df = pd.concat(df, ignore_index=True)
-
-                for col in ["result", "table"]:
-                    if col in df.columns:
-                        df = df.drop(columns=[col])
-
-                if df.empty:
-                    continue
-
-                df["_time"] = pd.to_datetime(df["_time"], utc=True)
-                df = df.sort_values("_time")
-
                 out_path = os.path.join(run_dir, f"{sensor['name']}.csv")
-                df.to_csv(out_path, index=False)
-                print(f"[ok] {out_path}")
+                if export_sensor_csv(
+                    client, org, bucket, sensor, q_start, q_stop, out_path
+                ):
+                    print(f"[ok] {out_path}")
+
+        # Whole-run exports: one CSV per sensor spanning the entire workflow
+        master_dir = os.path.join(out_dir, "full-test")
+        os.makedirs(master_dir, exist_ok=True)
+        for sensor in cfg.get("sensors", []):
+            out_path = os.path.join(master_dir, f"{sensor['name']}.csv")
+            if export_sensor_csv(
+                client, org, bucket, sensor, master_start, master_stop, out_path
+            ):
+                print(f"[master] {out_path}")
 
     return 0
 
