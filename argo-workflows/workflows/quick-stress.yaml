@@ -10,7 +10,11 @@ spec:
     secondsAfterSuccess: 15     
     secondsAfterFailure: 3600   # 1h
   entrypoint: suite
-  
+  arguments:
+    parameters:
+    - name: target-node 
+      value: ultrap3 # Specify the hostname in which the test will run
+
   # Reusable cooldown gate lives here, not in the module
   templates:
   - name: cooldown
@@ -26,10 +30,10 @@ spec:
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "10" }
           - { name: load,    value: "20" }
           - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-24w-20pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
@@ -47,10 +51,10 @@ spec:
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "10" }
           - { name: load,    value: "40" }
           - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-24w-40pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
@@ -68,10 +72,10 @@ spec:
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "10" }
           - { name: load,    value: "60" }
           - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-24w-60pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
@@ -89,10 +93,10 @@ spec:
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "10" }
           - { name: load,    value: "80" }
           - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-1w-80pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
@@ -110,10 +114,10 @@ spec:
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "10" }
           - { name: load,    value: "100" }
           - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-24w-100pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }

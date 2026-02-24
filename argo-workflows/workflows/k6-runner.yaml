@@ -9,7 +9,6 @@ spec:
     secondsAfterCompletion: 300
     secondsAfterSuccess: 300
     secondsAfterFailure: 3600
-
   entrypoint: suite
 
   templates:
