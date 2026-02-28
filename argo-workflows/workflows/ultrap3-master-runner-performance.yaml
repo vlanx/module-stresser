@@ -521,7 +521,7 @@ spec:
 ### APP ###
 # MAX VUSERS = 400 which is ~96% success rate
 
-    - - name: k6-sine-5000vu-ultrap3-performance
+    - - name: k6-sine-80vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -536,18 +536,18 @@ spec:
           - { name: MAX_VUSERS,       value: "80" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-5000vu" }
+          - { name: display,          value: "K6-600s-80vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "24" }
-          - { name: cpu_lim,          value: "24" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "32Gi" }
+          - { name: mem_lim,          value: "64Gi" }
 
     - - name: cooldown-1app
         template: cooldown
 
-    - - name: k6-sine-10000vu-ultrap3-performance
+    - - name: k6-sine-160vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -562,18 +562,18 @@ spec:
           - { name: MAX_VUSERS,       value: "160" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-10000vu" }
+          - { name: display,          value: "K6-600s-160vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "24" }
-          - { name: cpu_lim,          value: "24" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "32Gi" }
+          - { name: mem_lim,          value: "64Gi" }
 
     - - name: cooldown-2app
         template: cooldown
 
-    - - name: k6-sine-15000vu-ultrap3-performance
+    - - name: k6-sine-240vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -588,18 +588,18 @@ spec:
           - { name: MAX_VUSERS,       value: "240" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-15000vu" }
+          - { name: display,          value: "K6-600s-240vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "24" }
-          - { name: cpu_lim,          value: "24" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "32Gi" }
+          - { name: mem_lim,          value: "64Gi" }
 
     - - name: cooldown-3app
         template: cooldown
 
-    - - name: k6-sine-20000vu-ultrap3-performance
+    - - name: k6-sine-320vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -614,18 +614,18 @@ spec:
           - { name: MAX_VUSERS,       value: "320" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-20000vu" }
+          - { name: display,          value: "K6-600s-320vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "24" }
-          - { name: cpu_lim,          value: "24" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "32Gi" }
+          - { name: mem_lim,          value: "64Gi" }
 
     - - name: cooldown-4app
         template: cooldown
 
-    - - name: k6-sine-25000vu-ultrap3-performance
+    - - name: k6-sine-400vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -640,10 +640,10 @@ spec:
           - { name: MAX_VUSERS,       value: "400" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-25000vu" }
-
+          - { name: display,          value: "K6-600s-400vu" }
+          
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "24" }
-          - { name: cpu_lim,          value: "24" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
-          - { name: mem_lim,          value: "32Gi" }
+          - { name: mem_lim,          value: "64Gi" }
