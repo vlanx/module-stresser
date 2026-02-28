@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: master-workflow
+  name: master-workflow-ultrap3-performance
   namespace: stress
 spec:
   serviceAccountName: stress-sa # For proper permissions
@@ -24,105 +24,105 @@ spec:
   - name: suite
     steps:
 ### CPU ###
-    - - name: cpu-24w-20pct-10m
+    - - name: cpu-32w-20pct-10m-ultrap3-performance
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: load,    value: "20" }
           - { name: timeout, value: "10m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-20pct-10m" }
+          - { name: cpuset,  value: "0-31" }
+          - { name: display, value: "CPU-32w-20pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
+          - { name: cpu_lim, value: "32" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
     - - name: cooldown-1cpu
         template: cooldown
 
-    - - name: cpu-24w-40pct-10m
+    - - name: cpu-32w-40pct-10m-ultrap3-performance
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: load,    value: "40" }
           - { name: timeout, value: "10m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-40pct-10m" }
+          - { name: cpuset,  value: "0-31" }
+          - { name: display, value: "CPU-32w-40pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
+          - { name: cpu_lim, value: "32" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
     - - name: cooldown-2cpu
         template: cooldown
 
-    - - name: cpu-24w-60pct-10m
+    - - name: cpu-32w-60pct-10m-ultrap3-performance
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: load,    value: "60" }
           - { name: timeout, value: "10m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-60pct-10m" }
+          - { name: cpuset,  value: "0-31" }
+          - { name: display, value: "CPU-32w-60pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
+          - { name: cpu_lim, value: "32" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
     - - name: cooldown-3cpu
         template: cooldown
 
-    - - name: cpu-24w-80pct-10m
+    - - name: cpu-32w-80pct-10m-ultrap3-performance
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: load,    value: "80" }
           - { name: timeout, value: "10m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-31" }
           - { name: display, value: "CPU-1w-80pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
+          - { name: cpu_lim, value: "32" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
     - - name: cooldown-4cpu
         template: cooldown
 
-    - - name: cpu-24w-100pct-10m
+    - - name: cpu-32w-100pct-10m-ultrap3-performance
         templateRef:
           name: cpu-stress      # WorkflowTemplate name (same namespace)
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: load,    value: "100" }
           - { name: timeout, value: "10m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-100pct-10m" }
+          - { name: cpuset,  value: "0-31" }
+          - { name: display, value: "CPU-32w-100pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
+          - { name: cpu_lim, value: "32" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
@@ -131,21 +131,21 @@ spec:
         template: cooldown
 
 ### MEM ###
-    - - name: memory-12G-10m
+    - - name: memory-12G-10m-ultrap3-performance
         templateRef:
           name: memory-stress      # WorkflowTemplate name (same namespace)
           template: memory-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
           - { name: size,  value: "0.5" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
-          - { name: cpuset, value: "0-23" }
+          - { name: cpuset, value: "0-31" }
           - { name: display, value: "memory-12G-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           #- { name: cpu_req, value: "24" }
@@ -156,21 +156,21 @@ spec:
     - - name: cooldown-1mem
         template: cooldown
 
-    - - name: memory-24G-10m
+    - - name: memory-24G-10m-ultrap3-performance
         templateRef:
           name: memory-stress      # WorkflowTemplate name (same namespace)
           template: memory-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
           - { name: size,  value: "1" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
-          - { name: cpuset, value: "0-23" }
+          - { name: cpuset, value: "0-31" }
           - { name: display, value: "memory-24G-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           #- { name: cpu_req, value: "24" }
@@ -181,21 +181,21 @@ spec:
     - - name: cooldown-2mem
         template: cooldown
 
-    - - name: memory-36G-10m
+    - - name: memory-36G-10m-ultrap3-performance
         templateRef:
           name: memory-stress      # WorkflowTemplate name (same namespace)
           template: memory-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
           - { name: size,  value: "1.5" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
-          - { name: cpuset, value: "0-23" }
+          - { name: cpuset, value: "0-31" }
           - { name: display, value: "memory-36G-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           #- { name: cpu_req, value: "24" }
@@ -206,21 +206,21 @@ spec:
     - - name: cooldown-3mem
         template: cooldown
 
-    - - name: memory-48G-10m
+    - - name: memory-48G-10-ultrap3-performancem
         templateRef:
           name: memory-stress      # WorkflowTemplate name (same namespace)
           template: memory-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
           - { name: size,  value: "2" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
-          - { name: cpuset, value: "0-23" }
+          - { name: cpuset, value: "0-31" }
           - { name: display, value: "memory-48G-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           #- { name: cpu_req, value: "24" }
@@ -231,21 +231,21 @@ spec:
     - - name: cooldown-4mem
         template: cooldown
 
-    - - name: memory-58G-10m
+    - - name: memory-58G-10m-ultrap3-performance
         templateRef:
           name: memory-stress      # WorkflowTemplate name (same namespace)
           template: memory-stress-container         # inner template name
         arguments:
           parameters:
           - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: workers, value: "32" }
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
           - { name: size,  value: "2.4" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
-          - { name: cpuset, value: "0-23" }
+          - { name: cpuset, value: "0-31" }
           - { name: display, value: "memory-58G-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
           #- { name: cpu_req, value: "24" }
@@ -257,7 +257,7 @@ spec:
         template: cooldown
 
 ### IO ###
-    - - name: seq-write-12g-55mbps-10m
+    - - name: seq-write-12g-1000mbps-10m-ultrap3-performance
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -272,10 +272,10 @@ spec:
           - { name: filename,      value: "fio_rand.dat" }
           - { name: block_size,    value: "1M" }
           - { name: iodepth,       value: "64" }
-          - { name: target_mbps,   value: "55" } # Best when its sequential
+          - { name: target_mbps,   value: "1000" } # Best when its sequential
           #- { name: target_iops,   value: "50" }
           - { name: host_path,     value: "/var/lib/module-stresser" }
-          - { name: display,       value: "io-seq-write-12g-10m-55mbps" }
+          - { name: display,       value: "io-seq-write-12g-10m-1000mbps" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
           - { name: cpu_lim, value: "1" }
@@ -285,7 +285,7 @@ spec:
     - - name: cooldown-1io
         template: cooldown
 
-    - - name: seq-write-12g-110mbps-10m
+    - - name: seq-write-12g-2000mbps-10m-ultrap3-performance
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -300,10 +300,10 @@ spec:
           - { name: filename,      value: "fio_rand.dat" }
           - { name: block_size,    value: "1M" }
           - { name: iodepth,       value: "64" }
-          - { name: target_mbps,   value: "110" } # Best when its sequential
+          - { name: target_mbps,   value: "2000" } # Best when its sequential
           #- { name: target_iops,   value: "50" }
           - { name: host_path,     value: "/var/lib/module-stresser" }
-          - { name: display,       value: "io-seq-write-12g-10m-110mbps" }
+          - { name: display,       value: "io-seq-write-12g-10m-2000mbps" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
           - { name: cpu_lim, value: "1" }
@@ -313,7 +313,7 @@ spec:
     - - name: cooldown-2io
         template: cooldown
 
-    - - name: seq-write-12g-166mbps-10m
+    - - name: seq-write-12g-3000mbps-10m-ultrap3-performance
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -328,10 +328,10 @@ spec:
           - { name: filename,      value: "fio_rand.dat" }
           - { name: block_size,    value: "1M" }
           - { name: iodepth,       value: "64" }
-          - { name: target_mbps,   value: "166" } # Best when its sequential
+          - { name: target_mbps,   value: "3000" } # Best when its sequential
           #- { name: target_iops,   value: "50" }
           - { name: host_path,     value: "/var/lib/module-stresser" }
-          - { name: display,       value: "io-seq-write-12g-10m-166mbps" }
+          - { name: display,       value: "io-seq-write-12g-10m-3000mbps" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
           - { name: cpu_lim, value: "1" }
@@ -341,7 +341,7 @@ spec:
     - - name: cooldown-3io
         template: cooldown
 
-    - - name: seq-write-12g-221mbps-10m
+    - - name: seq-write-12g-4000mbps-10m-ultrap3-performance
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -356,10 +356,10 @@ spec:
           - { name: filename,      value: "fio_rand.dat" }
           - { name: block_size,    value: "1M" }
           - { name: iodepth,       value: "64" }
-          - { name: target_mbps,   value: "221" } # Best when its sequential
+          - { name: target_mbps,   value: "4000" } # Best when its sequential
           #- { name: target_iops,   value: "50" }
           - { name: host_path,     value: "/var/lib/module-stresser" }
-          - { name: display,       value: "io-seq-write-12g-10m-221mbps" }
+          - { name: display,       value: "io-seq-write-12g-10m-4000mbps" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
           - { name: cpu_lim, value: "1" }
@@ -369,7 +369,7 @@ spec:
     - - name: cooldown-4io
         template: cooldown
 
-    - - name: rand-read-12g-276mbps-10m
+    - - name: rand-read-12g-5000mbps-10m-ultrap3-performance
         templateRef:
           name: io-stress
           template: io-stress-container
@@ -384,10 +384,10 @@ spec:
           - { name: filename,      value: "fio_rand.dat" }
           - { name: block_size,    value: "1M" }
           - { name: iodepth,       value: "64" }
-          - { name: target_mbps,   value: "276" } # Best when its sequential
+          - { name: target_mbps,   value: "5000" } # Best when its sequential
           #- { name: target_iops,   value: "50" }
           - { name: host_path,     value: "/var/lib/module-stresser" }
-          - { name: display,       value: "io-seq-write-12g-10m-276mbps" }
+          - { name: display,       value: "io-seq-write-12g-10m-5000mbps" }
           ### CPU Requests/Limits for when we want more workers/cores
           - { name: cpu_req, value: "1" }
           - { name: cpu_lim, value: "1" }
@@ -398,7 +398,7 @@ spec:
         template: cooldown
 
 ### NET ###
-    - - name: tcp-upload-2000mbit-600s
+    - - name: tcp-upload-200mbit-600s-ultrap3-performance
         templateRef:
           name: network-stress
           template: network-stress-container
@@ -422,7 +422,7 @@ spec:
     - - name: cooldown-1net
         template: cooldown
 
-    - - name: tcp-upload-4000mbit-600s
+    - - name: tcp-upload-4000mbit-600s-ultrap3-performance
         templateRef:
           name: network-stress
           template: network-stress-container
@@ -446,7 +446,7 @@ spec:
     - - name: cooldown-2net
         template: cooldown
 
-    - - name: tcp-upload-6000mbit-600s
+    - - name: tcp-upload-6000mbit-600s-ultrap3-performance
         templateRef:
           name: network-stress
           template: network-stress-container
@@ -470,7 +470,7 @@ spec:
     - - name: cooldown-3net
         template: cooldown
 
-    - - name: tcp-upload-8000mbit-600s
+    - - name: tcp-upload-8000mbit-600s-ultrap3-performance
         templateRef:
           name: network-stress
           template: network-stress-container
@@ -494,7 +494,7 @@ spec:
     - - name: cooldown-4net
         template: cooldown
 
-    - - name: tcp-upload-10000mbit-600s
+    - - name: tcp-upload-10000mbit-600s-ultrap3-performance
         templateRef:
           name: network-stress
           template: network-stress-container
@@ -521,7 +521,7 @@ spec:
 ### APP ###
 # MAX VUSERS = 400 which is ~96% success rate
 
-    - - name: k6-sine-5000vu
+    - - name: k6-sine-5000vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -547,7 +547,7 @@ spec:
     - - name: cooldown-1app
         template: cooldown
 
-    - - name: k6-sine-10000vu
+    - - name: k6-sine-10000vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -573,7 +573,7 @@ spec:
     - - name: cooldown-2app
         template: cooldown
 
-    - - name: k6-sine-15000vu
+    - - name: k6-sine-15000vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -599,7 +599,7 @@ spec:
     - - name: cooldown-3app
         template: cooldown
 
-    - - name: k6-sine-20000vu
+    - - name: k6-sine-20000vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -625,7 +625,7 @@ spec:
     - - name: cooldown-4app
         template: cooldown
 
-    - - name: k6-sine-25000vu
+    - - name: k6-sine-25000vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
