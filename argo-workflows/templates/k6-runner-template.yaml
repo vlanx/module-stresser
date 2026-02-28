@@ -20,7 +20,7 @@ spec:
 
         # Test-specific parameters
         - name: BASE_URL               
-          value: "http://quickpizza-public-api.default.svc.cluster.local:3333"
+          value: "http://quickpizza-public-api.default.svc.cluster.local:3333/"
         - name: DURATION
           value: "600"
         - name: MAX_VUSERS
@@ -67,7 +67,7 @@ spec:
           k6 run {{inputs.parameters.k6_args}} /scripts/{{inputs.parameters.script_file}}
 
       env:
-        # From configmap script.js: BASE_URL, TEST_NUMBER, TEST_DURATION, COOLDOWN, BASE_AMPLITUDE. :contentReference[oaicite:4]{index=4}
+        # From configmap script.js
         - name: BASE_URL
           value: "{{inputs.parameters.BASE_URL}}"
         - name: DURATION

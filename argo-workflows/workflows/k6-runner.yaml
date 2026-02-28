@@ -29,9 +29,9 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
-          - { name: DURATION,         value: "100" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "5000" }  # peak VUs multiplier
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.ultrap3.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "400" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
           - { name: display,          value: "K6-30s-50-users" }
@@ -42,8 +42,8 @@ spec:
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "32Gi" }
 
-    # Optional: add more steps with different parameters,
-    # separated by cooldowns, just like your CPU suite.
+    # # Optional: add more steps with different parameters,
+    # # separated by cooldowns, just like your CPU suite.
     - - name: cooldown-1
         template: cooldown
 
@@ -57,9 +57,9 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.atnog-test5.svc.cluster.local:3333" }
           - { name: DURATION,         value: "200" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "30000" }  # peak VUs multiplier
+          - { name: MAX_VUSERS,       value: "800" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
           - { name: display,          value: "K6-QuickPizza-Sine-10cycles" }
