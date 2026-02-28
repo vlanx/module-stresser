@@ -50,12 +50,6 @@ spec:
           ports:
             - containerPort: 5432
               name: psql
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              memory: 256Mi
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -69,6 +63,11 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql
+          args:
+            - "-c"
+            - "max_connections=300"
+            - "-c"
+            - "shared_buffers=256MB"
 
 ---
 apiVersion: v1

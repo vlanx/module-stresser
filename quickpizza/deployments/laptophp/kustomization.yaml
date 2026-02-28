@@ -6,7 +6,7 @@ resources:
 
 namespace: laptophp
 
-patches: 
+patches:
   - patch: |-
       - op: add
         path: /spec/template/spec/nodeSelector
@@ -15,6 +15,113 @@ patches:
           kubernetes.io/hostname: laptophp
     target:
       kind: Deployment
+
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+    target:
+      kind: Deployment
+
+  # Hot path services
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "2"
+            memory: "2Gi"
+          limits:
+            cpu: "4"
+            memory: "4Gi"
+    target:
+      kind: Deployment
+      name: quickpizza-public-api
+
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "2"
+            memory: "2Gi"
+          limits:
+            cpu: "4"
+            memory: "4Gi"
+    target:
+      kind: Deployment
+      name: quickpizza-catalog
+
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "2"
+            memory: "2Gi"
+          limits:
+            cpu: "4"
+            memory: "4Gi"
+    target:
+      kind: Deployment
+      name: quickpizza-copy
+
+  # Minimal services
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+    target:
+      kind: Deployment
+      name: quickpizza-grpc
+
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+    target:
+      kind: Deployment
+      name: quickpizza-config
+
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+    target:
+      kind: Deployment
+      name: quickpizza-recommendations
+
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+    target:
+      kind: Deployment
+      name: quickpizza-ws
 
   - patch: |-
       - op: add
@@ -30,5 +137,14 @@ patches:
         value:
           - name: data
             emptyDir: {}
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "6Gi"
     target:
       kind: StatefulSet
