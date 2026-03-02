@@ -89,5 +89,6 @@ spec:
           mountPath: "{{inputs.parameters.test_dir}}"
       securityContext:
         runAsUser: 10001
+        runAsGroup: 20001
         runAsNonRoot: true
         allowPrivilegeEscalation: false
