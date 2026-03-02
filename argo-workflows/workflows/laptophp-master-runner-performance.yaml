@@ -14,6 +14,16 @@ spec:
     parameters:
     - name: target-node 
       value: laptophp # Specify the hostname in which the test will run
+    - name: quickpizza-repo-url
+      value: https://github.com/vlanx/module_stresser.git
+    - name: quickpizza-repo-ref
+      value: main
+    - name: quickpizza-kustomize-path
+      value: quickpizza/deployments/laptophp
+    - name: quickpizza-ready-timeout
+      value: 5m
+    - name: kubectl-image
+      value: registry.k8s.io/kubectl:v1.33.0
   
   # Reusable cooldown gate lives here, not in the module
   templates:
@@ -37,7 +47,7 @@ spec:
           - { name: cpuset,  value: "0-15" }
           - { name: display, value: "CPU-16w-20pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "12" }
+          - { name: cpu_req, value: "14" }
           - { name: cpu_lim, value: "16" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -58,7 +68,7 @@ spec:
           - { name: cpuset,  value: "0-15" }
           - { name: display, value: "CPU-16w-40pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "12" }
+          - { name: cpu_req, value: "14" }
           - { name: cpu_lim, value: "16" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -79,7 +89,7 @@ spec:
           - { name: cpuset,  value: "0-15" }
           - { name: display, value: "CPU-16w-60pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "12" }
+          - { name: cpu_req, value: "14" }
           - { name: cpu_lim, value: "16" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -100,7 +110,7 @@ spec:
           - { name: cpuset,  value: "0-15" }
           - { name: display, value: "CPU-16w-80pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "12" }
+          - { name: cpu_req, value: "14" }
           - { name: cpu_lim, value: "16" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -121,7 +131,7 @@ spec:
           - { name: cpuset,  value: "0-15" }
           - { name: display, value: "CPU-16w-100pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "12" }
+          - { name: cpu_req, value: "14" }
           - { name: cpu_lim, value: "16" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -519,7 +529,26 @@ spec:
         template: cooldown
 
 ### APP ###
-    - - name: k6-sine-5000vu-laptophp-performance
+# MAX VUSERS = 250 which is ~96% success rate
+
+    - - name: quickpizza-setup
+        templateRef:
+          name: quickpizza-lifecycle
+          template: setup
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: quickpizza-ready-timeout
+            value: "{{workflow.parameters.quickpizza-ready-timeout}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"
+
+    - - name: k6-sine-50vu-laptophp-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -529,23 +558,23 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "5000" }  # peak VUs multiplier
+          - { name: MAX_VUSERS,       value: "50" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-5000vu" }
+          - { name: display,          value: "K6-600s-50vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "16" }
-          - { name: cpu_lim,          value: "16" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "32Gi" }
 
     - - name: cooldown-1app
         template: cooldown
 
-    - - name: k6-sine-10000vu-laptophp-performance
+    - - name: k6-sine-100vu-laptophp-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -555,23 +584,23 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "10000" }  # peak VUs multiplier
+          - { name: MAX_VUSERS,       value: "100" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-10000vu" }
+          - { name: display,          value: "K6-600s-100vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "16" }
-          - { name: cpu_lim,          value: "16" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "32Gi" }
 
     - - name: cooldown-2app
         template: cooldown
 
-    - - name: k6-sine-15000vu-laptophp-performance
+    - - name: k6-sine-150vu-laptophp-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -581,23 +610,23 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "15000" }  # peak VUs multiplier
+          - { name: MAX_VUSERS,       value: "150" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-15000vu" }
+          - { name: display,          value: "K6-600s-150vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "16" }
-          - { name: cpu_lim,          value: "16" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "32Gi" }
 
     - - name: cooldown-3app
         template: cooldown
 
-    - - name: k6-sine-20000vu-laptophp-performance
+    - - name: k6-sine-200vu-laptophp-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -607,23 +636,23 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "20000" }  # peak VUs multiplier
+          - { name: MAX_VUSERS,       value: "200" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-20000vu" }
+          - { name: display,          value: "K6-600s-200vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "16" }
-          - { name: cpu_lim,          value: "16" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "32Gi" }
 
     - - name: cooldown-4app
         template: cooldown
 
-    - - name: k6-sine-25000vu-laptophp-performance
+    - - name: k6-sine-250vu-laptophp-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
           template: k6-test-container  # inner template name
@@ -633,15 +662,30 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.default.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
-          - { name: MAX_VUSERS,       value: "25000" }  # peak VUs multiplier
+          - { name: MAX_VUSERS,       value: "250" }  # peak VUs multiplier
 
           - { name: k6_args,          value: "--verbose" }
-          - { name: display,          value: "K6-600s-25000vu" }
+          - { name: display,          value: "K6-600s-250vu" }
 
           # Resource tuning (can adjust per step)
-          - { name: cpu_req,          value: "16" }
-          - { name: cpu_lim,          value: "16" }
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "32Gi" }
+
+    - - name: quickpizza-teardown
+        templateRef:
+          name: quickpizza-lifecycle
+          template: teardown
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"

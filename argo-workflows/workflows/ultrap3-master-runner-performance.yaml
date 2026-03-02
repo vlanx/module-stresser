@@ -14,6 +14,16 @@ spec:
     parameters:
     - name: target-node 
       value: ultrap3 # Specify the hostname in which the test will run
+    - name: quickpizza-repo-url
+      value: https://github.com/vlanx/module_stresser.git
+    - name: quickpizza-repo-ref
+      value: main
+    - name: quickpizza-kustomize-path
+      value: quickpizza/deployments/ultrap3
+    - name: quickpizza-ready-timeout
+      value: 5m
+    - name: kubectl-image
+      value: registry.k8s.io/kubectl:v1.33.0
   
   # Reusable cooldown gate lives here, not in the module
   templates:
@@ -521,6 +531,23 @@ spec:
 ### APP ###
 # MAX VUSERS = 400 which is ~96% success rate
 
+    - - name: quickpizza-setup
+        templateRef:
+          name: quickpizza-lifecycle
+          template: setup
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: quickpizza-ready-timeout
+            value: "{{workflow.parameters.quickpizza-ready-timeout}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"
+
     - - name: k6-sine-80vu-ultrap3-performance
         templateRef:
           name: k6-runner          # WorkflowTemplate name
@@ -531,7 +558,7 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.ultrap3.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
           - { name: MAX_VUSERS,       value: "80" }  # peak VUs multiplier
 
@@ -557,7 +584,7 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.ultrap3.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
           - { name: MAX_VUSERS,       value: "160" }  # peak VUs multiplier
 
@@ -583,7 +610,7 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.ultrap3.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
           - { name: MAX_VUSERS,       value: "240" }  # peak VUs multiplier
 
@@ -609,7 +636,7 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.ultrap3.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
           - { name: MAX_VUSERS,       value: "320" }  # peak VUs multiplier
 
@@ -635,7 +662,7 @@ spec:
           - { name: script_configmap, value: k6-sine-script }
           - { name: script_file,      value: script.js }
 
-          - { name: BASE_URL,         value: "http://quickpizza-public-api.ultrap3.svc.cluster.local:3333" }
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
           - { name: DURATION,         value: "600" }   # seconds per cycle
           - { name: MAX_VUSERS,       value: "400" }  # peak VUs multiplier
 
@@ -647,3 +674,18 @@ spec:
           - { name: cpu_lim,          value: "32" }
           - { name: mem_req,          value: "8Gi" }
           - { name: mem_lim,          value: "64Gi" }
+
+    - - name: quickpizza-teardown
+        templateRef:
+          name: quickpizza-lifecycle
+          template: teardown
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"
