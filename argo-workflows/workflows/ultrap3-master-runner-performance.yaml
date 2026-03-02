@@ -152,7 +152,7 @@ spec:
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
-          - { name: size,  value: "0.5" } # Size in Gb for the memory test
+          - { name: size,  value: "0.375" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
           - { name: cpuset, value: "0-31" }
@@ -177,7 +177,7 @@ spec:
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
-          - { name: size,  value: "1" } # Size in Gb for the memory test
+          - { name: size,  value: "0.75" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
           - { name: cpuset, value: "0-31" }
@@ -202,7 +202,7 @@ spec:
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
-          - { name: size,  value: "1.5" } # Size in Gb for the memory test
+          - { name: size,  value: "1.125" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
           - { name: cpuset, value: "0-31" }
@@ -227,7 +227,7 @@ spec:
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
-          - { name: size,  value: "2" } # Size in Gb for the memory test
+          - { name: size,  value: "1.5" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
           - { name: cpuset, value: "0-31" }
@@ -252,7 +252,7 @@ spec:
           - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
           - { name: timeout,  value: "10m" }
-          - { name: size,  value: "2.4" } # Size in Gb for the memory test
+          - { name: size,  value: "1.8125" } # Size in Gb for the memory test
           - { name: memrate_flush,  value: true } 
           - { name: memrate_method,  value: "all" } 
           - { name: cpuset, value: "0-31" }
