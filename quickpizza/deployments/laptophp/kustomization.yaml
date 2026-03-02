@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - ../base/quickpizza
 
-namespace: laptophp
-
 patches:
   - patch: |-
       - op: add
@@ -29,11 +27,11 @@ patches:
         path: /spec/template/spec/containers/0/resources
         value:
           requests:
-            cpu: "2"
-            memory: "2Gi"
-          limits:
             cpu: "4"
             memory: "4Gi"
+          limits:
+            cpu: "6"
+            memory: "6Gi"
     target:
       kind: Deployment
       name: quickpizza-public-api
@@ -43,11 +41,11 @@ patches:
         path: /spec/template/spec/containers/0/resources
         value:
           requests:
-            cpu: "2"
-            memory: "2Gi"
-          limits:
             cpu: "4"
             memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "6Gi"
     target:
       kind: Deployment
       name: quickpizza-catalog
@@ -57,11 +55,11 @@ patches:
         path: /spec/template/spec/containers/0/resources
         value:
           requests:
-            cpu: "2"
-            memory: "2Gi"
-          limits:
             cpu: "4"
             memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "6Gi"
     target:
       kind: Deployment
       name: quickpizza-copy

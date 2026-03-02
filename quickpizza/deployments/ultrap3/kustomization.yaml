@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - ../base/quickpizza
 
-namespace: ultrap3
-
 patches:
   - patch: |-
       - op: add
