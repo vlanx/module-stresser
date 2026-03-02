@@ -408,7 +408,7 @@ spec:
         template: cooldown
 
 ### NET ###
-    - - name: tcp-upload-200mbit-600s-ultrap3-performance
+    - - name: tcp-upload-2000mbit-600s-test5-performance
         templateRef:
           name: network-stress
           template: network-stress-container
