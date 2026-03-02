@@ -37,7 +37,7 @@ spec:
           - { name: cpuset,  value: "0-23" }
           - { name: display, value: "CPU-24w-20pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
+          - { name: cpu_req, value: "16" }
           - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -58,7 +58,7 @@ spec:
           - { name: cpuset,  value: "0-23" }
           - { name: display, value: "CPU-24w-40pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
+          - { name: cpu_req, value: "16" }
           - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -79,7 +79,7 @@ spec:
           - { name: cpuset,  value: "0-23" }
           - { name: display, value: "CPU-24w-60pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
+          - { name: cpu_req, value: "16" }
           - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -100,7 +100,7 @@ spec:
           - { name: cpuset,  value: "0-23" }
           - { name: display, value: "CPU-1w-80pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
+          - { name: cpu_req, value: "16" }
           - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -121,7 +121,7 @@ spec:
           - { name: cpuset,  value: "0-23" }
           - { name: display, value: "CPU-24w-100pct-10m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
+          - { name: cpu_req, value: "16" }
           - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
