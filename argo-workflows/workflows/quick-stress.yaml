@@ -14,13 +14,13 @@ spec:
   arguments:
     parameters:
     - name: target-node 
-      value: ultrap3 # Specify the hostname in which the test will run
+      value: atnog-test5 # Specify the hostname in which the test will run
     - name: quickpizza-repo-url
       value: https://github.com/vlanx/module_stresser.git
     - name: quickpizza-repo-ref
       value: main
     - name: quickpizza-kustomize-path
-      value: quickpizza/deployments/ultrap3
+      value: quickpizza/deployments/atnog-test5
     - name: quickpizza-ready-timeout
       value: 1m
     - name: kubectl-image
@@ -64,8 +64,8 @@ spec:
           - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-24w-20pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "28" }
-          - { name: cpu_lim, value: "32" }
+          - { name: cpu_req, value: "18" }
+          - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
 
