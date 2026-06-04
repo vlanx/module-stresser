@@ -33,8 +33,11 @@ spec:
     metadata:
       annotations:
         workflows.argoproj.io/display-name: "{{inputs.parameters.display}}"
+
     nodeSelector:
       role: stress
+      kubernetes.io/hostname: "{{workflow.parameters.target-node}}"
+
     # <<— podSpecPatch lives on the TEMPLATE
     podSpecPatch: |
       containers:
@@ -86,5 +89,6 @@ spec:
           mountPath: "{{inputs.parameters.test_dir}}"
       securityContext:
         runAsUser: 10001
+        runAsGroup: 20001
         runAsNonRoot: true
         allowPrivilegeEscalation: false

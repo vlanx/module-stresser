@@ -1,0 +1,119 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: quickpizza-lifecycle
+  namespace: stress
+spec:
+  templates:
+  - name: setup
+    inputs:
+      parameters:
+      - name: quickpizza-repo-url
+      - name: quickpizza-repo-ref
+      - name: quickpizza-kustomize-path
+      - name: quickpizza-ready-timeout
+      - name: kubectl-image
+    steps:
+    - - name: apply
+        template: apply-kustomize
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{inputs.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{inputs.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{inputs.parameters.quickpizza-kustomize-path}}"
+          - name: kubectl-image
+            value: "{{inputs.parameters.kubectl-image}}"
+    - - name: wait-deployments
+        template: wait-deployments
+        arguments:
+          parameters:
+          - name: quickpizza-ready-timeout
+            value: "{{inputs.parameters.quickpizza-ready-timeout}}"
+          - name: kubectl-image
+            value: "{{inputs.parameters.kubectl-image}}"
+
+  - name: teardown
+    inputs:
+      parameters:
+      - name: quickpizza-repo-url
+      - name: quickpizza-repo-ref
+      - name: quickpizza-kustomize-path
+      - name: kubectl-image
+    steps:
+    - - name: delete
+        template: delete-kustomize
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{inputs.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{inputs.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{inputs.parameters.quickpizza-kustomize-path}}"
+          - name: kubectl-image
+            value: "{{inputs.parameters.kubectl-image}}"
+
+  - name: apply-kustomize
+    inputs:
+      parameters:
+      - name: quickpizza-repo-url
+      - name: quickpizza-repo-ref
+      - name: quickpizza-kustomize-path
+      - name: kubectl-image
+      artifacts:
+      - name: source-repo
+        path: /work/source
+        git:
+          repo: "{{inputs.parameters.quickpizza-repo-url}}"
+          revision: "{{inputs.parameters.quickpizza-repo-ref}}"
+    container:
+      image: "{{inputs.parameters.kubectl-image}}"
+      command: [kubectl]
+      args:
+      - apply
+      - -k
+      - "/work/source/{{inputs.parameters.quickpizza-kustomize-path}}"
+
+  - name: delete-kustomize
+    inputs:
+      parameters:
+      - name: quickpizza-repo-url
+      - name: quickpizza-repo-ref
+      - name: quickpizza-kustomize-path
+      - name: kubectl-image
+      artifacts:
+      - name: source-repo
+        path: /work/source
+        git:
+          repo: "{{inputs.parameters.quickpizza-repo-url}}"
+          revision: "{{inputs.parameters.quickpizza-repo-ref}}"
+    container:
+      image: "{{inputs.parameters.kubectl-image}}"
+      command: [kubectl]
+      args:
+      - delete
+      - -k
+      - "/work/source/{{inputs.parameters.quickpizza-kustomize-path}}"
+      - --ignore-not-found=true
+      - --wait=true
+
+  - name: wait-deployments
+    inputs:
+      parameters:
+      - name: quickpizza-ready-timeout
+      - name: kubectl-image
+    container:
+      image: "{{inputs.parameters.kubectl-image}}"
+      command: [kubectl]
+      args:
+      - -n
+      - "stress"
+      - rollout
+      - status
+      - deployment
+      - -l
+      - app.k8s.io/name=quickpizza
+      - "--timeout={{inputs.parameters.quickpizza-ready-timeout}}"

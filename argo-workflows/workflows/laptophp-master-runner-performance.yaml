@@ -1,0 +1,691 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: master-workflow-laptophp-performance
+  namespace: stress
+spec:
+  serviceAccountName: stress-sa # For proper permissions
+  ttlStrategy:
+    secondsAfterCompletion: 300 # Delete the job file after 300s
+    secondsAfterSuccess: 300     
+    secondsAfterFailure: 3600   # 1h
+  entrypoint: suite
+  arguments:
+    parameters:
+    - name: target-node 
+      value: laptophp # Specify the hostname in which the test will run
+    - name: quickpizza-repo-url
+      value: https://github.com/vlanx/module_stresser.git
+    - name: quickpizza-repo-ref
+      value: main
+    - name: quickpizza-kustomize-path
+      value: quickpizza/deployments/laptophp
+    - name: quickpizza-ready-timeout
+      value: 5m
+    - name: kubectl-image
+      value: registry.k8s.io/kubectl:v1.33.0
+  
+  # Reusable cooldown gate lives here, not in the module
+  templates:
+  - name: cooldown
+    suspend:
+      duration: 5m
+
+  - name: suite
+    steps:
+### CPU ###
+    - - name: cpu-16w-20pct-10m-laptophp-performance
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: load,    value: "20" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-15" }
+          - { name: display, value: "CPU-16w-20pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "14" }
+          - { name: cpu_lim, value: "16" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-1cpu
+        template: cooldown
+
+    - - name: cpu-16w-40pct-10m-laptophp-performance
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: load,    value: "40" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-15" }
+          - { name: display, value: "CPU-16w-40pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "14" }
+          - { name: cpu_lim, value: "16" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-2cpu
+        template: cooldown
+
+    - - name: cpu-16w-60pct-10m-laptophp-performance
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: load,    value: "60" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-15" }
+          - { name: display, value: "CPU-16w-60pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "14" }
+          - { name: cpu_lim, value: "16" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-3cpu
+        template: cooldown
+
+    - - name: cpu-16w-80pct-10m-laptophp-performance
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: load,    value: "80" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-15" }
+          - { name: display, value: "CPU-16w-80pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "14" }
+          - { name: cpu_lim, value: "16" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+    - - name: cooldown-4cpu
+        template: cooldown
+
+    - - name: cpu-16w-100pct-10m-laptophp-performance
+        templateRef:
+          name: cpu-stress      # WorkflowTemplate name (same namespace)
+          template: cpu-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: load,    value: "100" }
+          - { name: timeout, value: "10m" }
+          - { name: cpuset,  value: "0-15" }
+          - { name: display, value: "CPU-16w-100pct-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "14" }
+          - { name: cpu_lim, value: "16" }
+          - { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "1Gi" }
+
+
+    - - name: cooldown-cpu2mem
+        template: cooldown
+
+### MEM ###
+    - - name: memory-6G-10m-laptophp-performance
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "10m" }
+          - { name: size,  value: "0.375" } # Size in Gb for the memory test
+          - { name: memrate_flush,  value: true } 
+          - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: "0-15" }
+          - { name: display, value: "memory-6G-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          #- { name: cpu_req, value: "24" }
+          #- { name: cpu_lim, value: "24" }
+            #- { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "32Gi" }
+
+    - - name: cooldown-1mem
+        template: cooldown
+
+    - - name: memory-12G-10m-laptophp-performance
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "10m" }
+          - { name: size,  value: "0.75" } # Size in Gb for the memory test
+          - { name: memrate_flush,  value: true } 
+          - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: "0-15" }
+          - { name: display, value: "memory-12G-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          #- { name: cpu_req, value: "24" }
+          #- { name: cpu_lim, value: "24" }
+            #- { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "32Gi" }
+
+    - - name: cooldown-2mem
+        template: cooldown
+
+    - - name: memory-18G-10m-laptophp-performance
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "10m" }
+          - { name: size,  value: "1.125" } # Size in Gb for the memory test
+          - { name: memrate_flush,  value: true } 
+          - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: "0-15" }
+          - { name: display, value: "memory-18G-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          #- { name: cpu_req, value: "24" }
+          #- { name: cpu_lim, value: "24" }
+            #- { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "32Gi" }
+
+    - - name: cooldown-3mem
+        template: cooldown
+
+    - - name: memory-24G-10-laptophp-performancem
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "10m" }
+          - { name: size,  value: "1.5" } # Size in Gb for the memory test
+          - { name: memrate_flush,  value: true } 
+          - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: "0-15" }
+          - { name: display, value: "memory-24G-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          #- { name: cpu_req, value: "24" }
+          #- { name: cpu_lim, value: "24" }
+            #- { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "32Gi" }
+
+    - - name: cooldown-4mem
+        template: cooldown
+
+    - - name: memory-30G-10m-laptophp-performance
+        templateRef:
+          name: memory-stress      # WorkflowTemplate name (same namespace)
+          template: memory-stress-container         # inner template name
+        arguments:
+          parameters:
+          - { name: image,   value: ghcr.io/vlanx/memory-stress:latest }
+          - { name: workers, value: "16" }
+          - { name: read_mbps,    value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: write_mbps, value: "-1" } # Value -1 disables cap on read speed. Value 0 disables reads
+          - { name: timeout,  value: "10m" }
+          - { name: size,  value: "1.875" } # Size in Gb for the memory test
+          - { name: memrate_flush,  value: true } 
+          - { name: memrate_method,  value: "all" } 
+          - { name: cpuset, value: "0-15" }
+          - { name: display, value: "memory-30G-10m" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          #- { name: cpu_req, value: "24" }
+          #- { name: cpu_lim, value: "24" }
+            #- { name: mem_req, value: "1Gi" }
+          - { name: mem_lim, value: "32Gi" }
+
+    - - name: cooldown-mem2io
+        template: cooldown
+
+### IO ###
+    - - name: seq-write-12g-432mbps-10m-laptophp-performance
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "seq-write" }
+          - { name: runtime_sec,   value: "600" }
+          - { name: numjobs,       value: "1" }
+            #- { name: file_size_gb,  value: "12" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "1M" }
+          - { name: iodepth,       value: "64" }
+          - { name: target_mbps,   value: "432" } # Best when its sequential
+          #- { name: target_iops,   value: "50" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-seq-write-12g-10m-432mbps" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }
+
+    - - name: cooldown-1io
+        template: cooldown
+
+    - - name: seq-write-12g-864mbps-10m-laptophp-performance
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "seq-write" }
+          - { name: runtime_sec,   value: "600" }
+          - { name: numjobs,       value: "1" }
+            #- { name: file_size_gb,  value: "12" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "1M" }
+          - { name: iodepth,       value: "64" }
+          - { name: target_mbps,   value: "864" } # Best when its sequential
+          #- { name: target_iops,   value: "50" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-seq-write-12g-10m-864mbps" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }
+
+    - - name: cooldown-2io
+        template: cooldown
+
+    - - name: seq-write-12g-1296mbps-10m-laptophp-performance
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "seq-write" }
+          - { name: runtime_sec,   value: "600" }
+          - { name: numjobs,       value: "1" }
+            #- { name: file_size_gb,  value: "12" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "1M" }
+          - { name: iodepth,       value: "64" }
+          - { name: target_mbps,   value: "1296" } # Best when its sequential
+          #- { name: target_iops,   value: "50" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-seq-write-12g-10m-1296mbps" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }
+
+    - - name: cooldown-3io
+        template: cooldown
+
+    - - name: seq-write-12g-1728mbps-10m-laptophp-performance
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "seq-write" }
+          - { name: runtime_sec,   value: "600" }
+          - { name: numjobs,       value: "1" }
+            #- { name: file_size_gb,  value: "12" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "1M" }
+          - { name: iodepth,       value: "64" }
+          - { name: target_mbps,   value: "1728" } # Best when its sequential
+          #- { name: target_iops,   value: "50" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-seq-write-12g-10m-1728mbps" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }
+
+    - - name: cooldown-4io
+        template: cooldown
+
+    - - name: rand-read-12g-2160mbps-10m-laptophp-performance
+        templateRef:
+          name: io-stress
+          template: io-stress-container
+        arguments:
+          parameters:
+          - { name: image,         value: ghcr.io/vlanx/io-stress:latest }
+          - { name: mode,          value: "seq-write" }
+          - { name: runtime_sec,   value: "600" }
+          - { name: numjobs,       value: "1" }
+            #- { name: file_size_gb,  value: "12" }
+          - { name: test_dir,      value: "/scratch" }
+          - { name: filename,      value: "fio_rand.dat" }
+          - { name: block_size,    value: "1M" }
+          - { name: iodepth,       value: "64" }
+          - { name: target_mbps,   value: "2160" } # Best when its sequential
+          #- { name: target_iops,   value: "50" }
+          - { name: host_path,     value: "/var/lib/module-stresser" }
+          - { name: display,       value: "io-seq-write-12g-10m-2160mbps" }
+          ### CPU Requests/Limits for when we want more workers/cores
+          - { name: cpu_req, value: "1" }
+          - { name: cpu_lim, value: "1" }
+          - { name: mem_req, value: "512Mi" }
+          - { name: mem_lim, value: "512Mi" }
+
+    - - name: cooldown-io2net
+        template: cooldown
+
+### NET ###
+    - - name: tcp-upload-200mbit-600s-laptophp-performance
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-ul-200mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "200" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-1net
+        template: cooldown
+
+    - - name: tcp-upload-400mbit-600s-laptophp-performance
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-ul-400mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "400" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-2net
+        template: cooldown
+
+    - - name: tcp-upload-600mbit-600s-laptophp-performance
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-ul-600mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "600" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-3net
+        template: cooldown
+
+    - - name: tcp-upload-800mbit-600s-laptophp-performance
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-dl-800mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "800" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-4net
+        template: cooldown
+
+    - - name: tcp-upload-1000mbit-600s-laptophp-performance
+        templateRef:
+          name: network-stress
+          template: network-stress-container
+        arguments:
+          parameters:
+            - { name: image,     value: ghcr.io/vlanx/network-stress:latest }
+            - { name: display,   value: "net-tcp-dl-1000mbit-600s" }
+            - { name: server,    value: "xbox.av.it.pt" }   # <— your server
+            - { name: proto,     value: "tcp" }
+            - { name: direction, value: "upload" }
+            - { name: bandwidth, value: "1000" }            # Mbit/s
+            - { name: time,      value: "600" }
+            - { name: parallel,  value: "1" }
+            - { name: zerocopy,  value: "1" }
+            # resources
+            - { name: cpu_req, value: "1" }
+            - { name: cpu_lim, value: "1" }
+            - { name: mem_req, value: "256Mi" }
+            - { name: mem_lim, value: "256Mi" }
+
+    - - name: cooldown-net2app
+        template: cooldown
+
+### APP ###
+# MAX VUSERS = 250 which is ~96% success rate
+
+    - - name: quickpizza-setup
+        templateRef:
+          name: quickpizza-lifecycle
+          template: setup
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: quickpizza-ready-timeout
+            value: "{{workflow.parameters.quickpizza-ready-timeout}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"
+
+    - - name: k6-sine-50vu-laptophp-performance
+        templateRef:
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "50" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-600s-50vu" }
+
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
+
+    - - name: cooldown-1app
+        template: cooldown
+
+    - - name: k6-sine-100vu-laptophp-performance
+        templateRef:
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "100" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-600s-100vu" }
+
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
+
+    - - name: cooldown-2app
+        template: cooldown
+
+    - - name: k6-sine-150vu-laptophp-performance
+        templateRef:
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "150" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-600s-150vu" }
+
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
+
+    - - name: cooldown-3app
+        template: cooldown
+
+    - - name: k6-sine-200vu-laptophp-performance
+        templateRef:
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "200" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-600s-200vu" }
+
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
+
+    - - name: cooldown-4app
+        template: cooldown
+
+    - - name: k6-sine-250vu-laptophp-performance
+        templateRef:
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
+        arguments:
+          parameters:
+          - { name: image,            value: grafana/k6:latest }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
+
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "250" }  # peak VUs multiplier
+
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-600s-250vu" }
+
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "32" }
+          - { name: cpu_lim,          value: "32" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }
+
+    - - name: quickpizza-teardown
+        templateRef:
+          name: quickpizza-lifecycle
+          template: teardown
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"

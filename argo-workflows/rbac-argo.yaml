@@ -27,4 +27,28 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: argo-executor
-
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: stress-quickpizza-manager
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "pods", "secrets", "services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: stress-quickpizza-manager-binding
+subjects:
+- kind: ServiceAccount
+  name: stress-sa
+  namespace: stress
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: stress-quickpizza-manager

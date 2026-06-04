@@ -39,6 +39,7 @@ spec:
 
     nodeSelector:
       role: stress
+      kubernetes.io/hostname: "{{workflow.parameters.target-node}}"
 
     # Keep resources in podSpecPatch (consistent with memory/IO)
     podSpecPatch: |

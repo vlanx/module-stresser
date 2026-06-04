@@ -26,6 +26,7 @@ spec:
 
     nodeSelector:
       role: stress
+      kubernetes.io/hostname: "{{workflow.parameters.target-node}}"
 
     # <<— podSpecPatch lives on the TEMPLATE
     podSpecPatch: |

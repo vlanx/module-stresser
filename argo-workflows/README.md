@@ -6,6 +6,7 @@ Since I wanted to have the `server` and `workflow-controller` of Argo Workflows 
 The patch files (applied with Kustomize) are inside the dir `argo-install-master-only`
 
 Additionally, we specify in the workflows the `nodeSelector`, but we taint the master either way. Just to be safer.
+
 ###### Note: I use the namespace `stress` for all the stress containers
 
 ```bash

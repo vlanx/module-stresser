@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: quick-24worker
+  name: quick-stress
   namespace: stress
 spec:
   serviceAccountName: stress-sa # For proper permissions
@@ -10,12 +10,44 @@ spec:
     secondsAfterSuccess: 15     
     secondsAfterFailure: 3600   # 1h
   entrypoint: suite
-  
+  onExit: quickpizza-teardown
+  arguments:
+    parameters:
+    - name: target-node 
+      value: atnog-test5 # Specify the hostname in which the test will run
+    - name: quickpizza-repo-url
+      value: https://github.com/vlanx/module_stresser.git
+    - name: quickpizza-repo-ref
+      value: main
+    - name: quickpizza-kustomize-path
+      value: quickpizza/deployments/atnog-test5
+    - name: quickpizza-ready-timeout
+      value: 1m
+    - name: kubectl-image
+      value: registry.k8s.io/kubectl:v1.33.0
+
   # Reusable cooldown gate lives here, not in the module
   templates:
   - name: cooldown
     suspend:
       duration: 30s
+
+  - name: quickpizza-teardown
+    steps:
+    - - name: quickpizza-delete-on-exit
+        templateRef:
+          name: quickpizza-lifecycle
+          template: teardown
+        arguments:
+          parameters:
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"
 
   - name: suite
     steps:
@@ -25,14 +57,14 @@ spec:
           template: cpu-stress-container         # inner template name
         arguments:
           parameters:
-          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
+          - { name: image,   value: "ghcr.io/vlanx/cpu-stress:latest" }
+          - { name: workers, value: "10" }
           - { name: load,    value: "20" }
           - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
+          - { name: cpuset,  value: "0-9" }
           - { name: display, value: "CPU-24w-20pct-1m" }
           ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
+          - { name: cpu_req, value: "18" }
           - { name: cpu_lim, value: "24" }
           - { name: mem_req, value: "1Gi" }
           - { name: mem_lim, value: "1Gi" }
@@ -40,83 +72,42 @@ spec:
     - - name: cooldown-1
         template: cooldown
 
-    - - name: cpu-24w-40pct-1m
+    - - name: quickpizza-deploy
         templateRef:
-          name: cpu-stress      # WorkflowTemplate name (same namespace)
-          template: cpu-stress-container         # inner template name
+          name: quickpizza-lifecycle
+          template: setup
         arguments:
           parameters:
-          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
-          - { name: load,    value: "40" }
-          - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-40pct-1m" }
-          ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
-          - { name: mem_req, value: "1Gi" }
-          - { name: mem_lim, value: "1Gi" }
+          - name: quickpizza-repo-url
+            value: "{{workflow.parameters.quickpizza-repo-url}}"
+          - name: quickpizza-repo-ref
+            value: "{{workflow.parameters.quickpizza-repo-ref}}"
+          - name: quickpizza-kustomize-path
+            value: "{{workflow.parameters.quickpizza-kustomize-path}}"
+          - name: quickpizza-ready-timeout
+            value: "{{workflow.parameters.quickpizza-ready-timeout}}"
+          - name: kubectl-image
+            value: "{{workflow.parameters.kubectl-image}}"
 
-    - - name: cooldown-2
-        template: cooldown
-
-    - - name: cpu-24w-60pct-1m
+    - - name: k6-qp-sine-5cycles
         templateRef:
-          name: cpu-stress      # WorkflowTemplate name (same namespace)
-          template: cpu-stress-container         # inner template name
+          name: k6-runner          # WorkflowTemplate name
+          template: k6-test-container  # inner template name
         arguments:
           parameters:
-          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
-          - { name: load,    value: "60" }
-          - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-60pct-1m" }
-          ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
-          - { name: mem_req, value: "1Gi" }
-          - { name: mem_lim, value: "1Gi" }
+          - { name: image,            value: "grafana/k6:latest" }
+          - { name: script_configmap, value: k6-sine-script }
+          - { name: script_file,      value: script.js }
 
-    - - name: cooldown-3
-        template: cooldown
+          - { name: BASE_URL,         value: "http://quickpizza-public-api.stress.svc.cluster.local:3333" }
+          - { name: DURATION,         value: "600" }   # seconds per cycle
+          - { name: MAX_VUSERS,       value: "400" }  # peak VUs multiplier
 
-    - - name: cpu-24w-80pct-1m
-        templateRef:
-          name: cpu-stress      # WorkflowTemplate name (same namespace)
-          template: cpu-stress-container         # inner template name
-        arguments:
-          parameters:
-          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
-          - { name: load,    value: "80" }
-          - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-1w-80pct-1m" }
-          ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
-          - { name: mem_req, value: "1Gi" }
-          - { name: mem_lim, value: "1Gi" }
+          - { name: k6_args,          value: "--verbose" }
+          - { name: display,          value: "K6-30s-50-users" }
 
-    - - name: cooldown-4
-        template: cooldown
-
-    - - name: cpu-24w-100pct-1m
-        templateRef:
-          name: cpu-stress      # WorkflowTemplate name (same namespace)
-          template: cpu-stress-container         # inner template name
-        arguments:
-          parameters:
-          - { name: image,   value: ghcr.io/vlanx/cpu-stress:latest }
-          - { name: workers, value: "24" }
-          - { name: load,    value: "100" }
-          - { name: timeout, value: "1m" }
-          - { name: cpuset,  value: "0-23" }
-          - { name: display, value: "CPU-24w-100pct-1m" }
-          ### CPU Requests/Limits for when we want more workers/cores
-          - { name: cpu_req, value: "1" }
-          - { name: cpu_lim, value: "24" }
-          - { name: mem_req, value: "1Gi" }
-          - { name: mem_lim, value: "1Gi" }
+          # Resource tuning (can adjust per step)
+          - { name: cpu_req,          value: "24" }
+          - { name: cpu_lim,          value: "24" }
+          - { name: mem_req,          value: "8Gi" }
+          - { name: mem_lim,          value: "32Gi" }

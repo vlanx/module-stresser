@@ -6,7 +6,8 @@ metadata:
 data:
   script.js: |
     import http from "k6/http";
-    import { check, sleep } from "k6";
+    import { sleep } from "k6";
+    import { Counter, Rate } from "k6/metrics";
 
     // ---------------------------------------
     // TEST PARAMETERS (env-driven, minimal)
@@ -40,9 +41,6 @@ data:
       ],
     };
 
-    // ---------------------------------------
-    // PAYLOAD (JSON body)
-    // ---------------------------------------
     const payload = JSON.stringify({
       customName: "",
       excludedIngredients: [],
@@ -52,6 +50,15 @@ data:
       minNumberOfToppings: 2,
       mustBeVegetarian: false,
     });
+
+    const pizzaUrl = `${BASE_URL}/api/pizza`;
+
+    const responses2xx = new Counter("responses_2xx");
+    const responses4xx = new Counter("responses_4xx");
+    const responses5xx = new Counter("responses_5xx");
+    const rate2xx = new Rate("responses_2xx_rate");
+    const rate4xx = new Rate("responses_4xx_rate");
+    const rate5xx = new Rate("responses_5xx_rate");
 
     // ---------------------------------------
     // HTTP HEADERS
@@ -67,9 +74,18 @@ data:
     // MAIN REQUEST LOOP
     // ---------------------------------------
     export default function () {
-      const res = http.post(BASE_URL, payload, params);
+      const res = http.post(pizzaUrl, payload, params);
+      const is2xx = res.status >= 200 && res.status < 300;
+      const is4xx = res.status >= 400 && res.status < 500;
+      const is5xx = res.status >= 500 && res.status < 600;
 
-      check(res, { "status is 200": (r) => r.status === 200 });
+      if (is2xx) responses2xx.add(1);
+      if (is4xx) responses4xx.add(1);
+      if (is5xx) responses5xx.add(1);
+
+      rate2xx.add(is2xx);
+      rate4xx.add(is4xx);
+      rate5xx.add(is5xx);
 
       // ~1 request per active VU per second
       sleep(1);

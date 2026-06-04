@@ -10,6 +10,10 @@ spec:
     secondsAfterSuccess: 300
     secondsAfterFailure: 3600
   entrypoint: suite
+  arguments:
+    parameters:
+    - name: target-node
+      value: ultrap3 # Specify the hostname in which the test will run
 
   templates:
   - name: cooldown
