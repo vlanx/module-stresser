@@ -1,160 +1,315 @@
-#!/usr/bin/env bash
+# Global configurations
+[agent]
+  interval = "1s"
+  round_interval = false
+  metric_batch_size = 10000
+  metric_buffer_limit = 500000
+  collection_jitter = "0s"
+  flush_interval = "10s"
+  flush_jitter = "0s"
+  precision = ""
+  debug = true
+  quiet = false
+  hostname = ""
+  omit_hostname = false
 
-set -euo pipefail
 
-# =========================================================
-# InfluxDB configuration
-# =========================================================
+######### ATNOG-TEST5 ###############0
+[[inputs.snmp]]
+  agents = ["udp://192.168.88.143:161"]
+  version = 1
+  community = "it-atnog"
+  name_override = "pdu143"
+  interval = "1s"
+  [[inputs.snmp.field]]
+    oid = "1.3.6.1.4.1.534.6.6.7.6.5.1.3.0.19"
+    name = "atnog-test5"
+[inputs.snmp.tags]
+plugin = "pdu"
+placement = "pdu143"
+rack = "r2"
+server = "atnog-test5"
 
-INFLUX_HOST="http://10.255.35.63:8086"
+[[inputs.snmp]]
+  agents = ["udp://192.168.88.144:161"]
+  version = 1
+  community = "it-atnog"
+  name_override = "pdu144"
+  interval = "1s"
+  [[inputs.snmp.field]]
+    oid = "1.3.6.1.4.1.534.6.6.7.6.5.1.3.0.19"
+    name = "atnog-test5"
+[inputs.snmp.tags]
+plugin = "pdu"
+placement = "pdu144"
+rack = "r2"
+server = "atnog-test5"
 
-INFLUX_TOKEN="PmHsyFvIxxf0ubR7Cya7FUFVwgo2DoOQHZkgrj8NwCvc7OQrFRnGKxNjmcWwbvOVqT2Q380m57_XqkWcLZNxTA=="
 
-INFLUX_ORG="it"
+# MQTT consumer for the PDU 143
+#[[inputs.mqtt_consumer]]
+#  servers = ["ssl://192.168.88.143:8883"]  # Replace with actual broker IP/port
+#  topics = ["mbdetnrs/2.0/powerDistributions/1/outlets/19/measures"]
+#  client_id = "telegraf-pdu_143"
+#  data_format = "json" # Assume the payload is JSON
+#  qos = 0
+#  persistent_session = false
+#  connection_timeout = "30s"
+#  name_override = "pdu_energy_143"
+# # TLS Config
+#  tls_ca = "/etc/telegraf/certs/pdu-r2-l.crt"
+#  tls_cert= "/etc/telegraf/certs/client.crt"
+#  tls_key= "/etc/telegraf/certs/client.key"
+#  ## Use TLS but skip chain & host verification
+#  insecure_skip_verify = true
+#  [inputs.mqtt_consumer.tags]
+#    source = "pdu143"
+#    server = "atnog-test5"
 
-INFLUX_BUCKET="energy"
+# MQTT consumer for the PDU 144
+#[[inputs.mqtt_consumer]]
+#  servers = ["ssl://192.168.88.144:8883"]  # Replace with actual broker IP/port
+#  topics = ["mbdetnrs/2.0/powerDistributions/1/outlets/19/measures"]
+#  client_id = "telegraf-pdu_144"
+#  data_format = "json" # Assume the payload is JSON
+#  qos = 0
+#  persistent_session = false
+#  connection_timeout = "30s"
+#  name_override = "pdu_energy_144"
+#  # TLS Config
+#  tls_ca = "/etc/telegraf/certs/pdu-r2-r.crt"
+#  tls_cert= "/etc/telegraf/certs/client.crt"
+#  tls_key= "/etc/telegraf/certs/client.key"
+#  ## Use TLS but skip chain & host verification
+#  insecure_skip_verify = true
+#  [inputs.mqtt_consumer.tags]
+#    source = "pdu144"
+#    server = "atnog-test5"
 
-OUTPUT_DIR="./energy_csv_exports"
+# MQTT consumer for the Shelly on PDU 143
+[[inputs.mqtt_consumer]]
+  servers = ["tcp://localhost:1883"]
+  topics = ["pdu143/status/pdu143"]
+  client_id = "telegraf-shelly-143"
+  data_format = "json" # Assume the payload is JSON
+  qos = 0
+  persistent_session = false
+  connection_timeout = "30s"
+  name_override = "shelly_pdu_143"
+  insecure_skip_verify = true
+  [inputs.mqtt_consumer.tags]
+    server = "atnog-test5"
 
-# =========================================================
-# Measurements
-# =========================================================
+# MQTT consumer for the Shelly on PDU 144
+[[inputs.mqtt_consumer]]
+  servers = ["tcp://localhost:1883"]
+  topics = ["pdu144/status/pdu144"]
+  client_id = "telegraf-shelly-144"
+  data_format = "json" # Assume the payload is JSON
+  qos = 0
+  persistent_session = false
+  connection_timeout = "30s"
+  name_override = "shelly_pdu_144"
+  insecure_skip_verify = true
+  [inputs.mqtt_consumer.tags]
+    server = "atnog-test5"
 
-MEASUREMENTS=(
-  "alumet"
-  "clamp-shelly"
-  "ipmi_snmp"
-  "kepler"
-  "pdu125"
-  "pdu143"
-  "pdu144"
-  "scaphandre"
-  "shelly_pdu_143"
-  "shelly_pdu_144"
-)
+# MQTT consumer for the Clamp Shelly
+[[inputs.mqtt_consumer]]
+  servers = ["tcp://localhost:1883"]
+  topics = ["clamp143/status/+"]
+  topic_tag = "topic" # Separate the different topics with a tag
+  client_id = "telegraf-clamp-shelly"
+  data_format = "json" # Assume the payload is JSON
+  qos = 0
+  persistent_session = false
+  connection_timeout = "30s"
+  name_override = "clamp-shelly"
+  insecure_skip_verify = true
+  [inputs.mqtt_consumer.tags]
+    server = "atnog-test5"
 
-# =========================================================
-# Host time windows
-# =========================================================
+# MQTT consumer for the IPMI tool
+#[[inputs.mqtt_consumer]]
+#  servers = ["tcp://10.255.35.77:1883"]  # Replace with actual broker IP/port
+#  topics = ["ipmi"]
+#  client_id = "telegraf-ipmi"
+#  name_override = "ipmi"
+#  data_format = "json" # Assume the payload is JSON
+#  qos = 0
+#  persistent_session = false
+#  connection_timeout = "30s"
+#  insecure_skip_verify = true
 
-HOSTS=(
-  "ultrap3"
-  "laptophp"
-  "test5"
-)
+# SNMP consumer for the IPMI  snmpwalk -v1 -c it-atnog 192.168.88.142 .1.3.6.1.4.1.232.6.2.9.3.1.7
+[[inputs.snmp]]
+  agents = ["udp://192.168.88.142:161"]
+  version = 1
+  community = "it-atnog"
+  timeout = "5s"
+  retries = 2
+  agent_host_tag = "source"
+  name_override = "ipmi_snmp"
+    [[inputs.snmp.field]]
+      name = "psu1"
+      oid  = "1.3.6.1.4.1.232.6.2.9.3.1.7.0.1"
+    [[inputs.snmp.field]]
+      name = "psu2"
+      oid  = "1.3.6.1.4.1.232.6.2.9.3.1.7.0.2"
+    [inputs.snmp.tags]
+      server = "atnog-test5"
 
-HOST_STARTS=(
-  "2026-03-02T17:00:00Z"
-  "2026-03-03T22:30:00Z"
-  "2026-03-04T16:00:00Z"
-)
+# Prometheus for Scaphandre
+[[inputs.prometheus]]
+  interval = "3s"
+  urls = [ "http://10.255.35.77:8080/metrics",]
+  metric_version = 2
+  name_override = "scaphandre"
+  fieldinclude = [ "scaph_host_power_microwatts", "scaph_domain_power_microwatts","scaph_socket_power_microwatts", "*host_energy*","scaph_process_power_consumption_microwatts"]
+  [inputs.prometheus.tags]
+    server = "atnog-test5"
 
-HOST_STOPS=(
-  "2026-03-03T00:00:00Z"
-  "2026-03-04T05:30:00Z"
-  "2026-03-04T23:00:00Z"
-)
+# Prometheus for Alumet
+[[inputs.prometheus]]
+  interval = "2s"
+  urls = [ "http://10.255.35.77:9091/metrics",]
+  metric_version = 2
+  name_override = "alumet"
+  fieldinclude = [ "rapl_consumed_energy_J_alumet"]
+  [inputs.prometheus.tags]
+    server = "atnog-test5"
 
-SERVER_TAGS=(
-  "ultraP3"
-  "laptopHP"
-  "atnog-test5"
-)
+# Prometheus for Kepler
+[[inputs.prometheus]]
+  interval = "1s"
+  urls = [ "http://10.255.35.77:9102/metrics",]
+  metric_version = 2
+  name_override = "kepler"
+  [inputs.prometheus.tags]
+    server = "atnog-test5"
 
-# =========================================================
-# Dependency checks
-# =========================================================
 
-if ! command -v curl >/dev/null 2>&1; then
-    echo "Error: required command not found: curl" >&2
-    exit 127
-fi
+######### LAPTOP HP ###############0
+####PDU
 
-field_filter_for_measurement() {
-    case "$1" in
-        kepler)
-            echo '  |> filter(fn: (r) => r._field =~ /^kepler_node_/)'
-            ;;
-        scaphandre)
-            echo '  |> filter(fn: (r) => r._field !~ /process/)'
-            ;;
-        clamp-shelly)
-            echo '  |> filter(fn: (r) => r._field =~ /_power$/)'
-            ;;
-        shelly_pdu_143|shelly_pdu_144)
-            echo '  |> filter(fn: (r) => r._field == "apower")'
-            ;;
-        ipmi_snmp)
-            echo '  |> filter(fn: (r) => r._field =~ /^psu/)'
-            ;;
-    esac
-}
+[[inputs.snmp]]
+  agents = ["udp://10.255.35.6:161"]
+  version = 1
+  community = "it-atnog"
+  name_override = "pdu125"
+  interval = "1s"
+  [[inputs.snmp.field]]
+    oid = "1.3.6.1.4.1.534.6.6.7.6.5.1.3.0.1"
+    name = "ultraP3"
+[inputs.snmp.tags]
+plugin = "pdu"
+placement = "table"
+rack = "r125"
+server = "ultraP3"
 
-# =========================================================
-# Create output directory
-# =========================================================
+# Prometheus for Scaphandre
+[[inputs.prometheus]]
+  interval = "3s"
+  urls = [ "http://10.255.35.141:8080/metrics",]
+  metric_version = 2
+  name_override = "scaphandre"
+  fieldinclude = [ "scaph_host_power_microwatts", "scaph_domain_power_microwatts","scaph_socket_power_microwatts", "*host_energy*","scaph_process_power_consumption_microwatts"]
+  [inputs.prometheus.tags]
+    server = "laptopHP"
 
-mkdir -p "${OUTPUT_DIR}"
+# Prometheus for Alumet
+[[inputs.prometheus]]
+  interval = "1s"
+  urls = [ "http://10.255.35.141:9091/metrics",]
+  metric_version = 2
+  name_override = "alumet"
+  fieldinclude = [ "rapl_consumed_energy_J_alumet"]
+  [inputs.prometheus.tags]
+    server = "laptopHP"
 
-# =========================================================
-# Export loop
-# =========================================================
+# Prometheus for Kepler
+[[inputs.prometheus]]
+  interval = "1s"
+  urls = [ "http://10.255.35.141:9102/metrics",]
+  metric_version = 2
+  name_override = "kepler"
+  [inputs.prometheus.tags]
+    server = "laptopHP"
 
-for HOST_INDEX in "${!HOSTS[@]}"; do
 
-    HOST="${HOSTS[$HOST_INDEX]}"
+######### ULTRA P3 ###############0
 
-    HOST_DIR="${OUTPUT_DIR}/${HOST}"
+[[inputs.snmp]]
+  agents = ["udp://10.255.35.6:161"]
+  version = 1
+  community = "it-atnog"
+  name_override = "pdu125"
+  interval = "1s"
+  [[inputs.snmp.field]]
+    oid = "1.3.6.1.4.1.534.6.6.7.6.5.1.3.0.19"
+    name = "laptopHP"
+[inputs.snmp.tags]
+plugin = "pdu"
+placement = "table"
+rack = "r125"
+server = "laptopHP"
 
-    mkdir -p "${HOST_DIR}"
+# MQTT consumer for the PDU 125
+#[[inputs.mqtt_consumer]]
+#  servers = ["ssl://10.255.35.6:8883"]  # Replace with actual broker IP/port
+#  topics = ["mbdetnrs/2.0/powerDistributions/1/outlets/1/measures"]
+#  client_id = "telegraf-pdu_125"
+#  data_format = "json" # Assume the payload is JSON
+#  qos = 0
+#  persistent_session = false
+#  connection_timeout = "30s"
+#  name_override = "pdu_energy_125"
+#  # TLS Config
+#  tls_ca = "/etc/telegraf/certs/pdu-r2-r.crt"
+#  tls_cert= "/etc/telegraf/certs/client.crt"
+#  tls_key= "/etc/telegraf/certs/client.key"
+#  ## Use TLS but skip chain & host verification
+#  insecure_skip_verify = true
+#  [inputs.mqtt_consumer.tags]
+#    source = "pdu125"
+#    server = "ultraP3"
 
-    START_TIME="${HOST_STARTS[$HOST_INDEX]}"
-    STOP_TIME="${HOST_STOPS[$HOST_INDEX]}"
-    SERVER_TAG="${SERVER_TAGS[$HOST_INDEX]}"
+# Prometheus for Scaphandre
+[[inputs.prometheus]]
+  interval = "3s"
+  urls = [ "http://10.255.35.143:8080/metrics",]
+  metric_version = 2
+  name_override = "scaphandre"
+  fieldinclude = [ "scaph_host_power_microwatts", "scaph_domain_power_microwatts","scaph_socket_power_microwatts", "*host_energy*","scaph_process_power_consumption_microwatts"]
+  [inputs.prometheus.tags]
+    server = "ultraP3"
 
-    echo ""
-    echo "================================================="
-    echo "Exporting host: ${HOST}"
-    echo "SERVER: ${SERVER_TAG}"
-    echo "START: ${START_TIME}"
-    echo "STOP : ${STOP_TIME}"
-    echo "================================================="
+# Prometheus for Alumet
+[[inputs.prometheus]]
+  interval = "1s"
+  urls = [ "http://10.255.35.143:9091/metrics",]
+  metric_version = 2
+  name_override = "alumet"
+  fieldinclude = [ "rapl_consumed_energy_J_alumet"]
+  [inputs.prometheus.tags]
+    server = "ultraP3"
 
-    for MEASUREMENT in "${MEASUREMENTS[@]}"; do
+# Prometheus for Kepler
+[[inputs.prometheus]]
+  interval = "1s"
+  urls = [ "http://10.255.35.143:9102/metrics",]
+  metric_version = 2
+  name_override = "kepler"
+  [inputs.prometheus.tags]
+    server = "ultraP3"
 
-        OUTPUT_FILE="${HOST_DIR}/${HOST}_${MEASUREMENT}.csv"
+################################################################################
 
-        echo ""
-        echo "Measurement: ${MEASUREMENT}"
-        echo "Output: ${OUTPUT_FILE}"
 
-        FIELD_FILTER="$(field_filter_for_measurement "${MEASUREMENT}")"
 
-        curl \
-          --fail \
-          --silent \
-          --show-error \
-          --location \
-          --request POST \
-          "${INFLUX_HOST}/api/v2/query?org=${INFLUX_ORG}" \
-          --header "Authorization: Token ${INFLUX_TOKEN}" \
-          --header "Accept: application/csv" \
-          --header "Content-Type: application/vnd.flux" \
-          --data-binary "
-from(bucket: \"${INFLUX_BUCKET}\")
-  |> range(start: ${START_TIME}, stop: ${STOP_TIME})
-  |> filter(fn: (r) => r._measurement == \"${MEASUREMENT}\")
-  |> filter(fn: (r) => r.server == \"${SERVER_TAG}\")
-${FIELD_FILTER}
-  |> sort(columns: [\"_time\"])
-" > "${OUTPUT_FILE}"
+#[[outputs.file]]
+#  files = ["/dev/stdout"]
+#  data_format = "influx"  # You can also use "json", "graphite", etc.
 
-    done
-
-done
-
-echo ""
-echo "================================================="
-echo "CSV export completed successfully"
-echo "Directory: ${OUTPUT_DIR}"
-echo "================================================="
+[[outputs.influxdb_v2]]
+  urls = ["http://localhost:8086"]
